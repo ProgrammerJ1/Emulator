@@ -1,39 +1,37 @@
-use native_windows_gui as nwg;
-use nwd::NwgUi;
-use nwg::NativeUi;
+use eframe::epi;
+use eframe::egui;
 
+#[derive(Default)]
+struct ExampleApp {}
 
-#[derive(Default, NwgUi)]
-pub struct BasicApp {
-    #[nwg_control(size: (300, 115), position: (300, 300), title: "Basic example", flags: "WINDOW|VISIBLE")]
-    #[nwg_events( OnWindowClose: [BasicApp::say_goodbye] )]
-    window: nwg::Window,
-
-    #[nwg_control(text: "Heisenberg", size: (280, 25), position: (10, 10))]
-    name_edit: nwg::TextInput,
-
-    #[nwg_control(text: "Say my name", size: (280, 60), position: (10, 40))]
-    #[nwg_events( OnButtonClick: [BasicApp::say_hello] )]
-    hello_button: nwg::Button
-}
-
-impl BasicApp {
-
-    fn say_hello(&self) {
-        nwg::simple_message("Hello", &format!("Hello {}", self.name_edit.text()));
-    }
-    
-    fn say_goodbye(&self) {
-        nwg::simple_message("Goodbye", &format!("Goodbye {}", self.name_edit.text()));
-        nwg::stop_thread_dispatch();
+impl epi::App for ExampleApp {
+    fn name(&self) -> &str {
+        "egui-101-basic"
     }
 
+    fn update(&mut self, ctx: &egui::CtxRef, frame: &epi::Frame) {
+        ctx.set_pixels_per_point(1.5);
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading("This is a ui.heading. ");
+
+            ui.label("This is a ui.label");
+
+            // This literally creates the button AND checks to see if it was clicked
+            if ui.button("Quit").clicked() {
+                frame.quit()
+            };
+        });
+    }
 }
 
 fn main() {
-    nwg::init().expect("Failed to init Native Windows GUI");
+    let app = ExampleApp::default();
 
-    let _app = BasicApp::build_ui(Default::default()).expect("Failed to build UI");
+    let native_options = eframe::NativeOptions{
+        initial_window_size: Some(egui::Vec2{x: 400.0, y: 400.0}),
+        ..eframe::NativeOptions::default()
+    };
 
-    nwg::dispatch_thread_events();
+    eframe::run_native(Box::new(app), native_options);
 }

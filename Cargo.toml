@@ -6,7 +6,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
-[target.'cfg(windows)']
-native-windows-gui="1.0.13"
-native-windows-derive = "1.0.5"
+eframe="0.23.0"

@@ -1,6 +1,6 @@
 use crate::apis::memory::MemorySubsystem;
-pub struct SystemResources {
+pub struct SystemResources<WordSize,AddressSize> {
     pub cpu: Procressor,
-    pub memory: MemorySubsystem,
+    pub memory: MemorySubsystem<WordSize,AddressSize>,
     pub io: IOSubsystem
 }

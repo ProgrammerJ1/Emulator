@@ -1,7 +1,7 @@
 pub enum Memory {
-    RAM(&mut [u8])
-    ROM(&[u8])
-    IOMMU(&[u8])
+    RAM(&mut [u8]),
+    ROM(&[u8]),
+    IOMMU(&[u8]),
     WIOMMU(&mut [u8])
 }
 pub struct MemoryRegion<WordSize,AddressSize> {

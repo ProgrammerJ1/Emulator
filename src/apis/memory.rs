@@ -11,7 +11,7 @@ pub struct MemoryRegion<'guestos> {
     pub downward: bool
 }
 pub struct MemorySubsystem<'guestos> {
-    pub addressable: Vec<usize>,
+    pub addressable_units: Vec<usize>,
     pub mmu_enabled: bool,
     pub phys_memory_regions: Vec<MemoryRegion<'guestos>>
 }

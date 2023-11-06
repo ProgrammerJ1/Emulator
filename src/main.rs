@@ -1,37 +1,14 @@
-use eframe::epi;
-use eframe::egui;
+use nwg::Window;
 
-#[derive(Default)]
-struct ExampleApp {}
-
-impl epi::App for ExampleApp {
-    fn name(&self) -> &str {
-        "egui-101-basic"
-    }
-
-    fn update(&mut self, ctx: &egui::CtxRef, frame: &epi::Frame) {
-        ctx.set_pixels_per_point(1.5);
-
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("This is a ui.heading. ");
-
-            ui.label("This is a ui.label");
-
-            // This literally creates the button AND checks to see if it was clicked
-            if ui.button("Quit").clicked() {
-                frame.quit()
-            };
-        });
-    }
-}
-
+extern crate native_windows_gui as nwg;
+extern crate native_windows_derive as nwd;
 fn main() {
-    let app = ExampleApp::default();
-
-    let native_options = eframe::NativeOptions{
-        initial_window_size: Some(egui::Vec2{x: 400.0, y: 400.0}),
-        ..eframe::NativeOptions::default()
-    };
-
-    eframe::run_native(Box::new(app), native_options);
+    nwg::init();
+    let mut builder=nwg::Window::builder();
+    builder=builder.title("Virtual Computer Manager");
+    builder=builder.size((500,500));
+    let window:&mut Window=&mut Window::default();
+    builder.build(window);
+    window.set_visible(true);
+    nwg::dispatch_thread_events();
 }

@@ -156,4 +156,15 @@ impl BitOperations {
     pub fn ror64(word:u64,n:u32)->u64 {
         word.rotate_right(rotate)
     }
+    pub fn hswap32(value:u32)->u32 {
+        return value.rotate_left(16)
+    }
+    pub fn hswap64(value: u64)->u64 {
+        let other_bitmask=0x0000ffff0000ffff;
+        value=value.rotate_left(32);
+        return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
+    }
+    pub fn wswap64(value: u64) {
+        return value.rotate_left(32);
+    }
 }

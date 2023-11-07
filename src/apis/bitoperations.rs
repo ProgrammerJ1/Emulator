@@ -164,7 +164,23 @@ impl BitOperations {
         value=value.rotate_left(32);
         return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
     }
-    pub fn wswap64(value: u64) {
+    pub fn wswap64(value: u64)->u64 {
         return value.rotate_left(32);
+    }
+    pub fn extract32(value:u32,start:u32,length:u32)->u32 {
+        assert!(start>=0&&length>0&&length<=0);
+        return (value>>start)&((2**length)-1);
+    }
+    pub fn extract8(value:u8,start:u8,length:u8)->u8 {
+        assert!(start>=0&&length>0&&length<=0);
+        return (value>>start)&((2**length)-1);
+    }
+    pub fn extract16(value:u16,start:u16,length:u16)->u16 {
+        assert!(start>=0&&length>0&&length<=0);
+        return (value>>start)&((2**length)-1);
+    }
+    pub fn extract64(value:u64,start:u64,length:u64)->u64 {
+        assert!(start>=0&&length>0&&length<=0);
+        return (value>>start)&((2**length)-1);
     }
 }

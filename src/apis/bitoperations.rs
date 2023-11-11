@@ -101,7 +101,7 @@ impl BitOperations {
         return size 
     }
     //find first set bit
-    pub fn find_first_zero_bit(address:&u64,size:u64)->u64 {
+    pub fn find_first_bit(address:&u64,offset:u64,size:u64)->u64 {
         if (offset>=size) {
             return size;
         }
@@ -113,7 +113,7 @@ impl BitOperations {
         return size 
     }
     //find first cleared bit
-    pub fn find_first_zero_bit(address:&u64,size:u64)->u64 {
+    pub fn find_first_zero_bit(address:&u64,offset:u64,size:u64)->u64 {
         if (offset>=size) {
             return size;
         }
@@ -126,40 +126,40 @@ impl BitOperations {
     }
     //rotate 8 bit value left
     pub fn rol8(word:u8,n:u32)->u8 {
-        word.rotate_left(rotate)
+        word.rotate_left(n)
     }
     //rotate 8 bit value right
     pub fn ror8(word:u8,n:u32)->u8 {
-        word.rotate_right(rotate)
+        word.rotate_right(n)
     }
     //rotate 16 bit value left
     pub fn rol16(word:u16,n:u32)->u16 {
-        word.rotate_left(rotate)
+        word.rotate_left(n)
     }
     //rotate 16 bit value right
     pub fn ror16(word:u16,n:u32)->u16 {
-        word.rotate_right(rotate)
+        word.rotate_right(n)
     }
     //rotate 32 bit value left
     pub fn rol32(word:u32,n:u32)->u32 {
-        word.rotate_left(rotate)
+        word.rotate_left(n)
     }
     //rotate 32 bit value right
     pub fn ror32(word:u32,n:u32)->u32 {
-        word.rotate_right(rotate)
+        word.rotate_right(n)
     }
     //rotate 64 bit value left
     pub fn rol64(word:u64,n:u32)->u64 {
-        word.rotate_left(rotate)
+        word.rotate_left(n)
     }
     //rotate 64 bit value right
     pub fn ror64(word:u64,n:u32)->u64 {
-        word.rotate_right(rotate)
+        word.rotate_right(n)
     }
     pub fn hswap32(value:u32)->u32 {
         return value.rotate_left(16)
     }
-    pub fn hswap64(value: u64)->u64 {
+    /*pub fn hswap64(value: u64)->u64 {
         let other_bitmask=0x0000ffff0000ffff;
         value=value.rotate_left(32);
         return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
@@ -182,5 +182,5 @@ impl BitOperations {
     pub fn extract64(value:u64,start:u64,length:u64)->u64 {
         assert!(start>=0&&length>0&&length<=0);
         return (value>>start)&((2**length)-1);
-    }
+    }*/
 }

@@ -249,7 +249,7 @@ dependencies = [
 
 [[package]]
 name = "virtual_computer_api"
-version = "0.1.0"
+version = "1.0.0"
 
 [[package]]
 name = "wasm-bindgen"

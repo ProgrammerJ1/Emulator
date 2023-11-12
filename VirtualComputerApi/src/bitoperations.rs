@@ -159,7 +159,7 @@ impl BitOperations {
     pub fn hswap32(value:u32)->u32 {
         return value.rotate_left(16)
     }
-    /*pub fn hswap64(value: u64)->u64 {
+    pub fn hswap64(value: u64)->u64 {
         let other_bitmask=0x0000ffff0000ffff;
         value=value.rotate_left(32);
         return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
@@ -182,5 +182,9 @@ impl BitOperations {
     pub fn extract64(value:u64,start:u64,length:u64)->u64 {
         assert!(start>=0&&length>0&&length<=0);
         return (value>>start)&((2**length)-1);
-    }*/
+    }
+    pub fn sextract32(value:u32,start:u32,length:u32)->u32 {
+        assert!(start>=0&&length>0&&length<=0);
+        return (value>>start)&((2**length)-1);
+    }
 }

@@ -1,0 +1,7 @@
+[workspace]
+name = "VirtualComputerTools"
+members=[
+    "VirtualComputerManager",
+    "virtual_computer_api"
+]
+

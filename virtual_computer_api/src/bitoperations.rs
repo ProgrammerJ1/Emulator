@@ -1,5 +1,4 @@
 use std::mem::size_of;
-use std::slice::SliceIndex;
 use std::sync::atomic::AtomicPtr;
 //Structure holding these operations
 pub struct BitOperations;
@@ -78,10 +77,10 @@ impl BitOperations {
     }
     //find next set bit
     pub fn find_next_bit(address:&u64,offset:u64,size:u64)->u64 {
-        if (offset>=size) {
+        if offset>=size {
             return size;
         }
-        for nr in (offset..size) {
+        for nr in offset..size {
             if Self::test_bit(nr,address) {
                 return nr;
             }
@@ -90,10 +89,10 @@ impl BitOperations {
     }
     //find next cleared bit
     pub fn find_next_zero_bit(address:&u64,offset:u64,size:u64)->u64 {
-        if (offset>=size) {
+        if offset>=size {
             return size;
         }
-        for nr in (offset..size) {
+        for nr in offset..size {
             if !Self::test_bit(nr,address) {
                 return nr;
             }
@@ -102,10 +101,10 @@ impl BitOperations {
     }
     //find first set bit
     pub fn find_first_bit(address:&u64,offset:u64,size:u64)->u64 {
-        if (offset>=size) {
+        if offset>=size {
             return size;
         }
-        for nr in (0..size) {
+        for nr in 0..size {
             if Self::test_bit(nr,address) {
                 return nr;
             }
@@ -114,10 +113,10 @@ impl BitOperations {
     }
     //find first cleared bit
     pub fn find_first_zero_bit(address:&u64,offset:u64,size:u64)->u64 {
-        if (offset>=size) {
+        if offset>=size {
             return size;
         }
-        for nr in (0..size) {
+        for nr in 0..size {
             if !Self::test_bit(nr,address) {
                 return nr;
             }
@@ -159,7 +158,7 @@ impl BitOperations {
     pub fn hswap32(value:u32)->u32 {
         return value.rotate_left(16)
     }
-    pub fn hswap64(value: u64)->u64 {
+    pub fn hswap64(mut value: u64)->u64 {
         let other_bitmask=0x0000ffff0000ffff;
         value=value.rotate_left(32);
         return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
@@ -168,23 +167,19 @@ impl BitOperations {
         return value.rotate_left(32);
     }
     pub fn extract32(value:u32,start:u32,length:u32)->u32 {
-        assert!(start>=0&&length>0&&length<=0);
-        return (value>>start)&((2**length)-1);
+        assert!(length>0&&length<=32);
+        return (value>>start)&(2_u32.pow(length-1)&(2_u32.pow(length-1)-1))
     }
-    pub fn extract8(value:u8,start:u8,length:u8)->u8 {
-        assert!(start>=0&&length>0&&length<=0);
-        return (value>>start)&((2**length)-1);
+    pub fn extract8(value:u8,start:u8,length:u32)->u8 {
+        assert!(length>0&&length<=8);
+        return (value>>start)&(2_u8.pow(length-1)&(2_u8.pow(length-1)-1))
     }
-    pub fn extract16(value:u16,start:u16,length:u16)->u16 {
-        assert!(start>=0&&length>0&&length<=0);
-        return (value>>start)&((2**length)-1);
+    pub fn extract16(value:u16,start:u16,length:u32)->u16 {
+        assert!(length>0&&length<=16);
+        return (value>>start)&(2_u16.pow(length-1)&(2_u16.pow(length-1)-1))
     }
-    pub fn extract64(value:u64,start:u64,length:u64)->u64 {
-        assert!(start>=0&&length>0&&length<=0);
-        return (value>>start)&((2**length)-1);
-    }
-    pub fn sextract32(value:u32,start:u32,length:u32)->u32 {
-        assert!(start>=0&&length>0&&length<=0);
-        return (value>>start)&((2**length)-1);
+    pub fn extract64(value:u64,start:u64,length:u32)->u64 {
+        assert!(length>0&&length<=64);
+        return (value>>start)&(2_u64.pow(length-1)&(2_u64.pow(length-1)-1));
     }
 }

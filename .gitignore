@@ -1,3 +1,4 @@
+/target
 VirtualComputerManager/target
-VirtualComputerApi/target
+virtual_computer_api/target
 /.vscode

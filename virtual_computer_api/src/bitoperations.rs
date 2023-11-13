@@ -155,45 +155,56 @@ impl BitOperations {
     pub fn ror64(word:u64,n:u32)->u64 {
         word.rotate_right(n)
     }
+    //swap 16 bit halfwords in a 32 bit word
     pub fn hswap32(value:u32)->u32 {
         return value.rotate_left(16)
     }
+    //swap 16 bit halfwords in a 64 bit word
     pub fn hswap64(mut value: u64)->u64 {
         let other_bitmask=0x0000ffff0000ffff;
         value=value.rotate_left(32);
         return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
     }
+    //swap 32 bit words in a 64 bit word
     pub fn wswap64(value: u64)->u64 {
         return value.rotate_left(32);
     }
+    //extract a value from a 32 bit number
     pub fn extract32(value:u32,start:u32,length:u32)->u32 {
         assert!(length>0&&length<=32);
         return (value>>start)&(2_u32.pow(32-length-1)&(2_u32.pow(length-1)-1))
     }
+    //extract a value from a 8 bit number
     pub fn extract8(value:u8,start:u32,length:u32)->u8 {
         assert!(length>0&&length<=8);
         return (value>>start)&(2_u8.pow(8-length-1)&(2_u8.pow(length-1)-1))
     }
+    //extract a value from a 16 bit number
     pub fn extract16(value:u16,start:u32,length:u32)->u16 {
         assert!(length>0&&length<=16);
         return (value>>start)&(2_u16.pow(16-length-1)&(2_u16.pow(length-1)-1))
     }
+    //extract a value from a 64 bit number
     pub fn extract64(value:u64,start:u32,length:u32)->u64 {
         assert!(length>0&&length<=64);
         return (value>>start)&(2_u64.pow(64-length-1)&(2_u64.pow(length-1)-1));
     }
+    //extract a signed extended value from a 32 bit number
     pub fn sextract32(value:u32,start:u32,length:u32)->i32 {
         assert!(length>0&&length<=32);
         return ((value<<(32-length-start))>>(32-length)).try_into().unwrap()
     }
+    //extract a signed extended value from a 8 bit number
     pub fn sextract8(value:u8,start:u32,length:u32)->i8 {
         assert!(length>0&&length<=8);
         return ((value<<(8-length-start))>>(8-length)).try_into().unwrap()
     }
+    //extract a signed extended value from a 16 bit number
     pub fn sextract16(value:u16,start:u32,length:u32)->i16 {
         assert!(length>0&&length<=16);
         return ((value<<(16-length-start))>>(16-length)).try_into().unwrap()
     }
+    //extract a signed extended value from a 64 bit number
     pub fn sextract64(value:u64,start:u32,length:u32)->i64 {
         assert!(length>0&&length<=64);
         return ((value<<(64-length-start))>>(64-length)).try_into().unwrap()

@@ -168,18 +168,34 @@ impl BitOperations {
     }
     pub fn extract32(value:u32,start:u32,length:u32)->u32 {
         assert!(length>0&&length<=32);
-        return (value>>start)&(2_u32.pow(length-1)&(2_u32.pow(length-1)-1))
+        return (value>>start)&(2_u32.pow(32-length-1)&(2_u32.pow(length-1)-1))
     }
-    pub fn extract8(value:u8,start:u8,length:u32)->u8 {
+    pub fn extract8(value:u8,start:u32,length:u32)->u8 {
         assert!(length>0&&length<=8);
-        return (value>>start)&(2_u8.pow(length-1)&(2_u8.pow(length-1)-1))
+        return (value>>start)&(2_u8.pow(8-length-1)&(2_u8.pow(length-1)-1))
     }
-    pub fn extract16(value:u16,start:u16,length:u32)->u16 {
+    pub fn extract16(value:u16,start:u32,length:u32)->u16 {
         assert!(length>0&&length<=16);
-        return (value>>start)&(2_u16.pow(length-1)&(2_u16.pow(length-1)-1))
+        return (value>>start)&(2_u16.pow(16-length-1)&(2_u16.pow(length-1)-1))
     }
-    pub fn extract64(value:u64,start:u64,length:u32)->u64 {
+    pub fn extract64(value:u64,start:u32,length:u32)->u64 {
         assert!(length>0&&length<=64);
-        return (value>>start)&(2_u64.pow(length-1)&(2_u64.pow(length-1)-1));
+        return (value>>start)&(2_u64.pow(64-length-1)&(2_u64.pow(length-1)-1));
+    }
+    pub fn sextract32(value:u32,start:u32,length:u32)->i32 {
+        assert!(length>0&&length<=32);
+        return ((value<<(32-length-start))>>(32-length)).try_into().unwrap()
+    }
+    pub fn sextract8(value:u8,start:u32,length:u32)->i8 {
+        assert!(length>0&&length<=8);
+        return ((value<<(8-length-start))>>(8-length)).try_into().unwrap()
+    }
+    pub fn sextract16(value:u16,start:u32,length:u32)->i16 {
+        assert!(length>0&&length<=16);
+        return ((value<<(16-length-start))>>(16-length)).try_into().unwrap()
+    }
+    pub fn sextract64(value:u64,start:u32,length:u32)->i64 {
+        assert!(length>0&&length<=64);
+        return ((value<<(64-length-start))>>(64-length)).try_into().unwrap()
     }
 }

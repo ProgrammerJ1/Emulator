@@ -247,4 +247,10 @@ impl BitOperations {
         }
         return value;
     }
+    //
+    pub fn half_shuffle32(mut value:u32)->u32 {
+        let aligned_value_clone: u64=value.into();
+        for index in (0..16) {
+            if Self::test_bit()
+    }
 }

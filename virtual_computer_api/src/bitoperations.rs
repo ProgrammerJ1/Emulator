@@ -26,36 +26,33 @@ impl BitOperations {
         let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
         *p^=1<<(nr%((size_of::<u64>()*8) as u64));
     }
-    //see test if bit is set and set bit
-    pub fn test_and_set_bit(nr: u64,address:&mut u64)->bool {
-        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        let mut test=p.clone();
-        test&=1<<(nr%((size_of::<u64>()*8) as u64));
-        Self::set_bit(nr%((size_of::<u64>()*8) as u64), p);
-        return test>0
-    }
-    //see test if bit is set and clear bit
-    pub fn test_and_clear_bit(nr: u64,address:&mut u64)->bool {
-        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        let mut test=p.clone();
-        test&=1<<(nr%((size_of::<u64>()*8) as u64));
-        Self::clear_bit(nr%((size_of::<u64>()*8) as u64), p);
-        return test>0
-    }
-    //see test if bit is set and change bit
-    pub fn test_and_change_bit(nr: u64,address:&mut u64)->bool {
-        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        let mut test=p.clone();
-        test&=1<<(nr%((size_of::<u64>()*8) as u64));
-        Self::change_bit(nr%((size_of::<u64>()*8) as u64), p);
-        return test>0
-    }
     //see if bit is set
     pub fn test_bit(nr: u64,address:&u64)->bool {
         let p=unsafe{std::ptr::from_ref(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_ref()}.unwrap();
         let mut test=p.clone();
         test&=1<<(nr%((size_of::<u64>()*8) as u64));
         return test>0
+    }
+    //see test if bit is set and set bit
+    pub fn test_and_set_bit(nr: u64,address:&mut u64)->bool {
+        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
+        let res=Self::test_bit(nr,address);
+        Self::set_bit(nr%((size_of::<u64>()*8) as u64), p);
+        return res;
+    }
+    //see test if bit is set and clear bit
+    pub fn test_and_clear_bit(nr: u64,address:&mut u64)->bool {
+        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
+        let res=Self::test_bit(nr,address);
+        Self::clear_bit(nr%((size_of::<u64>()*8) as u64), p);
+        return res;
+    }
+    //see test if bit is set and change bit
+    pub fn test_and_change_bit(nr: u64,address:&mut u64)->bool {
+        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
+        let res=Self::test_bit(nr,address);
+        Self::change_bit(nr%((size_of::<u64>()*8) as u64), p);
+        return res;
     }
     //return last set bit in a memory range
     pub fn find_last_bit(address:&u64,size:u64)->u64 {
@@ -208,5 +205,15 @@ impl BitOperations {
     pub fn sextract64(value:u64,start:u32,length:u32)->i64 {
         assert!(length>0&&length<=64);
         return ((value<<(64-length-start))>>(64-length)).try_into().unwrap()
+    }
+    //deposit bits of a 32 bit value into another.
+    pub fn deposit32(mut value:u32,start:u32,length:u32,field_value:u32)->u32 {
+        assert!(length>0&&length<=32);
+        {
+            let other_bitmask=(u32::MAX>>(32-length))<<start;
+            value&=~other_bitmask;
+            value|=(field_value&other_bitmask);
+        }
+        return value;
     }
 }

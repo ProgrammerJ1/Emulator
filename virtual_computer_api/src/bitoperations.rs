@@ -216,4 +216,35 @@ impl BitOperations {
         }
         return value;
     }
+    //deposit bits of a 64 bit value into another.
+    pub fn deposit64(mut value:u64,start:u32,length:u32,field_value:u32)->u64 {
+        assert!(length>0&&length<=64);
+        {
+            let other_bitmask=(u64::MAX>>(64-length))<<start;
+            value&=~other_bitmask;
+            value|=(field_value&other_bitmask);
+        }
+        return value;
+    }
+    
+    //deposit bits of a 16 bit value into another.
+    pub fn deposit16(mut value:u16,start:u32,length:u32,field_value:u32)->u16 {
+        assert!(length>0&&length<=16);
+        {
+            let other_bitmask=(u16::MAX>>(16-length))<<start;
+            value&=~other_bitmask;
+            value|=(field_value&other_bitmask);
+        }
+        return value;
+    }
+    //deposit bits of a 8 bit value into another.
+    pub fn deposit8(mut value:u8,start:u32,length:u32,field_value:u32)->u8 {
+        assert!(length>0&&length<=8);
+        {
+            let other_bitmask=(u8::MAX>>(8-length))<<start;
+            value&=~other_bitmask;
+            value|=(field_value&other_bitmask);
+        }
+        return value;
+    }
 }

@@ -1,6 +1,6 @@
 use std::mem::size_of;
 use std::sync::atomic::AtomicPtr;
-//Structure holding these operations
+//Structure holding these operations, bit operations inspired by qemu
 pub struct BitOperations;
 impl BitOperations {
     //set a bit in memory
@@ -247,10 +247,21 @@ impl BitOperations {
         }
         return value;
     }
-    //
+    //return the value where the bottom 16 bits are spread out into the odd bits in the word, and the even bits are zeroed (not by index)
     pub fn half_shuffle32(mut value:u32)->u32 {
-        let aligned_value_clone: u64=value.into();
-        for index in (0..16) {
-            if Self::test_bit()
+        value = ((value & 0xFF00) << 8) | (value & 0x00FF);
+        value = ((value << 4) | value) & 0x0F0F0F0F;
+        value = ((value << 2) | value) & 0x33333333;
+        value = ((value << 1) | value) & 0x55555555;
+        return value;
+    }
+    //return the value where the bottom 32 bits are spread out into the odd bits in the word, and the even bits are zeroed (not by index)
+    pub fn half_shuffle64(mut value:u64)->u64 {
+        value = ((value & 0xFFFF0000ULL) << 16) | (value & 0xFFFF);
+        value = ((x << 8) | value) & 0x00FF00FF00FF00FFULL;
+        value = ((value << 4) | value) & 0x0F0F0F0F0F0F0F0FULL;
+        value= ((x << 2) | value) & 0x3333333333333333ULL;
+        value = ((value << 1) | value) & 0x5555555555555555ULL;
+        return value;
     }
 }

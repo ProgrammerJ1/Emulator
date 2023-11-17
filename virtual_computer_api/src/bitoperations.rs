@@ -247,7 +247,7 @@ impl BitOperations {
         }
         return value;
     }
-    //return the value where the bottom 16 bits are spread out into the odd bits in the word, and the even bits are zeroed (not by index)
+    //return the value where the lower half is spread out into the odd bits in the word, and the even bits are zeroed (not by 0 based index)
     pub fn half_shuffle32(mut value:u32)->u32 {
         value = ((value & 0xFF00) << 8) | (value & 0x00FF);
         value = ((value << 4) | value) & 0x0F0F0F0F;
@@ -255,13 +255,32 @@ impl BitOperations {
         value = ((value << 1) | value) & 0x55555555;
         return value;
     }
-    //return the value where the bottom 32 bits are spread out into the odd bits in the word, and the even bits are zeroed (not by index)
+    //64 bit variant
     pub fn half_shuffle64(mut value:u64)->u64 {
         value = ((value & 0xFFFF0000ULL) << 16) | (value & 0xFFFF);
-        value = ((x << 8) | value) & 0x00FF00FF00FF00FFULL;
+        value = ((value << 8) | value) & 0x00FF00FF00FF00FFULL;
         value = ((value << 4) | value) & 0x0F0F0F0F0F0F0F0FULL;
-        value= ((x << 2) | value) & 0x3333333333333333ULL;
+        value= ((value << 2) | value) & 0x3333333333333333ULL;
         value = ((value << 1) | value) & 0x5555555555555555ULL;
         return value;
+    }
+    //return the value where all the odd bits are compressed down into the low half of the word, and the high half is zeroed
+    pub fn half_unshuffle32(mut value: u32) {
+        value &= 0x55555555;
+        value = ((value >> 1) | value) & 0x33333333;
+        value = ((value >> 2) | value) & 0x0F0F0F0F;
+        value = ((value >> 4) | value) & 0x00FF00FF;
+        value = ((value >> 8) | value) & 0x0000FFFF;
+        return value
+    }
+    //64 bit variant
+    pub fn half_unshuffle64(mut value: u64) {
+        value &= 0x5555555555555555ULL;
+        value = ((value >> 1) | value) & 0x3333333333333333ULL;
+        value = ((value >> 2) | value) & 0x0F0F0F0F0F0F0F0FULL;
+        value = ((value >> 4) | value) & 0x00FF00FF00FF00FFULL;
+        value = ((value >> 8) | value) & 0x0000FFFF0000FFFFULL;
+        value = ((value >> 16) | value) & 0x00000000FFFFFFFFULL;
+        return value
     }
 }

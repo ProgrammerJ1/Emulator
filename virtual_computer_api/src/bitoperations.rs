@@ -33,21 +33,21 @@ impl BitOperations {
         test&=1<<(nr%((size_of::<u64>()*8) as u64));
         return test>0
     }
-    //see test if bit is set and set bit
+    //see if bit is set and set bit
     pub fn test_and_set_bit(nr: u64,address:&mut u64)->bool {
         let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
         let res=Self::test_bit(nr,address);
         Self::set_bit(nr%((size_of::<u64>()*8) as u64), p);
         return res;
     }
-    //see test if bit is set and clear bit
+    //see if bit is set and clear bit
     pub fn test_and_clear_bit(nr: u64,address:&mut u64)->bool {
         let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
         let res=Self::test_bit(nr,address);
         Self::clear_bit(nr%((size_of::<u64>()*8) as u64), p);
         return res;
     }
-    //see test if bit is set and change bit
+    //see if bit is set and change bit
     pub fn test_and_change_bit(nr: u64,address:&mut u64)->bool {
         let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
         let res=Self::test_bit(nr,address);
@@ -211,38 +211,38 @@ impl BitOperations {
         assert!(length>0&&length<=32);
         {
             let other_bitmask=(u32::MAX>>(32-length))<<start;
-            value&=~other_bitmask;
+            value&=!other_bitmask;
             value|=(field_value&other_bitmask);
         }
         return value;
     }
     //deposit bits of a 64 bit value into another.
-    pub fn deposit64(mut value:u64,start:u32,length:u32,field_value:u32)->u64 {
+    pub fn deposit64(mut value:u64,start:u32,length:u32,field_value:u64)->u64 {
         assert!(length>0&&length<=64);
         {
             let other_bitmask=(u64::MAX>>(64-length))<<start;
-            value&=~other_bitmask;
+            value&=!other_bitmask;
             value|=(field_value&other_bitmask);
         }
         return value;
     }
     
     //deposit bits of a 16 bit value into another.
-    pub fn deposit16(mut value:u16,start:u32,length:u32,field_value:u32)->u16 {
+    pub fn deposit16(mut value:u16,start:u32,length:u32,field_value:u16)->u16 {
         assert!(length>0&&length<=16);
         {
             let other_bitmask=(u16::MAX>>(16-length))<<start;
-            value&=~other_bitmask;
+            value&=!other_bitmask;
             value|=(field_value&other_bitmask);
         }
         return value;
     }
     //deposit bits of a 8 bit value into another.
-    pub fn deposit8(mut value:u8,start:u32,length:u32,field_value:u32)->u8 {
+    pub fn deposit8(mut value:u8,start:u32,length:u32,field_value:u8)->u8 {
         assert!(length>0&&length<=8);
         {
             let other_bitmask=(u8::MAX>>(8-length))<<start;
-            value&=~other_bitmask;
+            value&=!other_bitmask;
             value|=(field_value&other_bitmask);
         }
         return value;
@@ -257,15 +257,15 @@ impl BitOperations {
     }
     //64 bit variant
     pub fn half_shuffle64(mut value:u64)->u64 {
-        value = ((value & 0xFFFF0000ULL) << 16) | (value & 0xFFFF);
-        value = ((value << 8) | value) & 0x00FF00FF00FF00FFULL;
-        value = ((value << 4) | value) & 0x0F0F0F0F0F0F0F0FULL;
-        value= ((value << 2) | value) & 0x3333333333333333ULL;
-        value = ((value << 1) | value) & 0x5555555555555555ULL;
+        value = ((value & 0xFFFF0000) << 16) | (value & 0xFFFF);
+        value = ((value << 8) | value) & 0x00FF00FF00FF00FF;
+        value = ((value << 4) | value) & 0x0F0F0F0F0F0F0F0F;
+        value= ((value << 2) | value) & 0x3333333333333333;
+        value = ((value << 1) | value) & 0x5555555555555555;
         return value;
     }
     //return the value where all the odd bits are compressed down into the low half of the word, and the high half is zeroed
-    pub fn half_unshuffle32(mut value: u32) {
+    pub fn half_unshuffle32(mut value: u32)->u32 {
         value &= 0x55555555;
         value = ((value >> 1) | value) & 0x33333333;
         value = ((value >> 2) | value) & 0x0F0F0F0F;
@@ -274,13 +274,13 @@ impl BitOperations {
         return value
     }
     //64 bit variant
-    pub fn half_unshuffle64(mut value: u64) {
-        value &= 0x5555555555555555ULL;
-        value = ((value >> 1) | value) & 0x3333333333333333ULL;
-        value = ((value >> 2) | value) & 0x0F0F0F0F0F0F0F0FULL;
-        value = ((value >> 4) | value) & 0x00FF00FF00FF00FFULL;
-        value = ((value >> 8) | value) & 0x0000FFFF0000FFFFULL;
-        value = ((value >> 16) | value) & 0x00000000FFFFFFFFULL;
+    pub fn half_unshuffle64(mut value: u64)->u64 {
+        value &= 0x5555555555555555;
+        value = ((value >> 1) | value) & 0x3333333333333333;
+        value = ((value >> 2) | value) & 0x0F0F0F0F0F0F0F0F;
+        value = ((value >> 4) | value) & 0x00FF00FF00FF00FF;
+        value = ((value >> 8) | value) & 0x0000FFFF0000FFFF;
+        value = ((value >> 16) | value) & 0x00000000FFFFFFFF;
         return value
     }
 }

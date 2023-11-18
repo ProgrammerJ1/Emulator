@@ -7,4 +7,5 @@ pub fn bit_operations() {
 }
 pub fn bit_setting(rng: &mut ThreadRng) {
     let mut numbers:[u64;2]=[rng.next_u64(),rng.next_u64()];
-    numbers
+    numbers=[]
+}

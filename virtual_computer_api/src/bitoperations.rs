@@ -1,5 +1,5 @@
 use std::mem::size_of;
-use std::sync::atomic::AtomicPtr;
+use std::sync::Arc;
 //Structure holding these operations, bit operations inspired by qemu
 pub struct BitOperations;
 impl BitOperations {
@@ -9,8 +9,8 @@ impl BitOperations {
         *p|=1<<(nr%((size_of::<u64>()*8) as u64));
     }
     //set a bit in memory atomically
-    pub fn set_bit_atomically(nr: u64,address:AtomicPtr<u64>) {
-        Self::set_bit(nr, unsafe{address.into_inner().as_mut()}.unwrap());
+    pub fn set_bit_atomically(nr: u64,address:&mut Arc<u64>) {
+        Self::set_bit(nr, Arc::<u64>::make_mut(address));
     }
     //clear a bit in memory
     pub fn clear_bit(nr: u64,address:&mut u64) {
@@ -18,8 +18,8 @@ impl BitOperations {
         *p&=!(1<<(nr%((size_of::<u64>()*8) as u64)));
     }
     //clear a bit in memory atomically
-    pub fn clear_bit_atomically(nr: u64,address:AtomicPtr<u64>) {
-        Self::clear_bit(nr, unsafe{address.into_inner().as_mut()}.unwrap());
+    pub fn clear_bit_atomically(nr: u64,address:&mut Arc<u64>) {
+        Self::clear_bit(nr, Arc::<u64>::make_mut(address));
     }
     //flip a bit
     pub fn change_bit(nr: u64,address:&mut u64) {

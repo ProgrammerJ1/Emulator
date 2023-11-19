@@ -15,7 +15,7 @@ impl BitOperations {
     //clear a bit in memory
     pub fn clear_bit(nr: u64,address:&mut u64) {
         let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        *p|=!(1<<(nr%((size_of::<u64>()*8) as u64)));
+        *p&=!(1<<(nr%((size_of::<u64>()*8) as u64)));
     }
     //clear a bit in memory atomically
     pub fn clear_bit_atomically(nr: u64,address:AtomicPtr<u64>) {

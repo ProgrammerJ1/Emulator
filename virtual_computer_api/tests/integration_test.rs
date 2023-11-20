@@ -1,6 +1,7 @@
 use virtual_computer_api;
 use rand::{rngs::ThreadRng,thread_rng,RngCore};
-pub fn bit_setting(rng: &mut ThreadRng) {
+#[test]
+pub fn bit_setting() {
     let mut rng=thread_rng();
     let mut numbers:[u64;3]=[rng.next_u64(),rng.next_u64(),rng.next_u64()];
     {

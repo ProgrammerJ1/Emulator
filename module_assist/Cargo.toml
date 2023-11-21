@@ -1,0 +1,6 @@
+[package]
+name = "virtual_computer_api"
+version = "1.0.0"
+edition = "2021"
+[dependencies]
+type_info="0.2.1"

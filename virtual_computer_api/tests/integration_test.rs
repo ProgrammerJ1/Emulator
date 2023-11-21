@@ -13,14 +13,14 @@ pub fn bit_setting() {
             }
         }
     }
-    let modified_bits:[u32; 3];
+    let modified_bits:[u64; 3];
     let mut new_number_strings:[String; 3];
     {
         let old_number_strings:[String; 3]=[format!("{:<064b}",numbers[0]),format!("{:<064b}",numbers[1].to_string()),format!("{:<064b}",numbers[2].to_string())];
         modified_bits=[63-unsafe{old_number_strings[0].rfind('0').unwrap_unchecked()} as u64,63+(63-unsafe{old_number_strings[1].rfind('0').unwrap_unchecked()}) as u64,63-unsafe{old_number_strings[0].find('1').unwrap_unchecked()} as u64];
         new_number_strings=old_number_strings.clone();
         for i in 0..2 {
-            let chosen_bit=new_number_strings[i].rmatch_indices('0').next().unwrap_unchecked().0];
+            let chosen_bit=unsafe{new_number_strings[i].rmatch_indices('0').next().unwrap_unchecked().0};
             *new_number_strings[i][chosen_bit..chosen_bit]=*"1";
         }
     }
@@ -30,4 +30,5 @@ pub fn bit_setting() {
     for i in 0..3 {
         assert_eq!(format!("{:<064b}",numbers[i]),new_number_strings[i]);
     }
+    for 
 }

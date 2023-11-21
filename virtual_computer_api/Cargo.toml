@@ -3,6 +3,6 @@ name = "virtual_computer_api"
 version = "1.0.0"
 edition = "2021"
 [dependencies]
-typeinfo="0.1.1"
+type_info="0.2.1"
 [dev-dependencies]
 rand="0.8.5"

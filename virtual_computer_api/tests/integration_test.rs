@@ -30,5 +30,4 @@ pub fn bit_setting() {
     for i in 0..3 {
         assert_eq!(format!("{:<064b}",numbers[i]),new_number_strings[i]);
     }
-    for 
 }

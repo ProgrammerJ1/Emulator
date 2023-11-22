@@ -212,7 +212,7 @@ impl BitOperations {
         {
             let other_bitmask=(u32::MAX>>(32-length))<<start;
             value&=!other_bitmask;
-            value|=(field_value&other_bitmask);
+            value|=field_value&other_bitmask;
         }
         return value;
     }
@@ -222,7 +222,7 @@ impl BitOperations {
         {
             let other_bitmask=(u64::MAX>>(64-length))<<start;
             value&=!other_bitmask;
-            value|=(field_value&other_bitmask);
+            value|=field_value&other_bitmask;
         }
         return value;
     }
@@ -233,7 +233,7 @@ impl BitOperations {
         {
             let other_bitmask=(u16::MAX>>(16-length))<<start;
             value&=!other_bitmask;
-            value|=(field_value&other_bitmask);
+            value|=field_value&other_bitmask;
         }
         return value;
     }
@@ -243,7 +243,7 @@ impl BitOperations {
         {
             let other_bitmask=(u8::MAX>>(8-length))<<start;
             value&=!other_bitmask;
-            value|=(field_value&other_bitmask);
+            value|=field_value&other_bitmask;
         }
         return value;
     }

@@ -21,7 +21,7 @@ pub fn bit_setting() {
         new_number_strings=old_number_strings.clone();
         for i in 0..2 {
             let chosen_bit=unsafe{new_number_strings[i].rmatch_indices('0').next().unwrap_unchecked().0};
-            *new_number_strings[i][chosen_bit..chosen_bit]=*"1";
+            new_number_strings[i][chosen_bit..chosen_bit]="1";
         }
     }
     virtual_computer_api::bitoperations::BitOperations::set_bit(modified_bits[0], &mut numbers[0]);

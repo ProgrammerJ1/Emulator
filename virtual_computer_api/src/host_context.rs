@@ -1,3 +1,4 @@
+use byteorder::NativeEndian;
 pub enum Endianess {
     Little,
     Mixed,
@@ -6,7 +7,6 @@ pub enum Endianess {
 pub struct SystemContext {
     endianess: Endianess
 }
-fn get_host_endian() {
-    ;
+fn get_host_context()->SystemContext {
+    SystemContext { endianess: NativeEndian }
 }
-//fn get_host_context()

@@ -1,12 +1,21 @@
-use byteorder::NativeEndian;
 pub enum Endianess {
     Little,
-    Mixed,
     Big
 }
 pub struct SystemContext {
     endianess: Endianess
 }
+impl SystemContext {
+    fn new(endianess:Endianess)->Self {
+        return Self {endianess}
+    }
+}
 fn get_host_context()->SystemContext {
-    SystemContext { endianess: NativeEndian }
+    let endianess: Endianess;
+    if cfg!(target_endian = "big") {
+        endianess=Endianess::Big;
+    } else {
+        endianess=Endianess::Little;
+    }
+    SystemContext::new(endianess)
 }

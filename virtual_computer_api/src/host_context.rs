@@ -3,7 +3,7 @@ pub enum Endianess {
     Big
 }
 pub struct SystemContext {
-    endianess: Endianess
+    pub endianess: Endianess
 }
 impl SystemContext {
     fn new(endianess:Endianess)->Self {

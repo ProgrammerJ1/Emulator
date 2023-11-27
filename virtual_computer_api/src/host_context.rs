@@ -1,21 +1,21 @@
-pub enum Endianess {
+pub enum Endianness {
     Little,
     Big
 }
 pub struct SystemContext {
-    pub endianess: Endianess
+    pub endianess: Endianness
 }
 impl SystemContext {
-    fn new(endianess:Endianess)->Self {
+    fn new(endianness:Endianness)->Self {
         return Self {endianess}
     }
 }
 fn get_host_context()->SystemContext {
-    let endianess: Endianess;
+    let endianness: Endianess;
     if cfg!(target_endian = "big") {
-        endianess=Endianess::Big;
+        endianess=Endianness::Big;
     } else {
-        endianess=Endianess::Little;
+        endianess=Endianness::Little;
     }
-    SystemContext::new(endianess)
+    SystemContext::new(endianness)
 }

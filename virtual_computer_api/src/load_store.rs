@@ -1,5 +1,5 @@
 use ux::{u24,i24};
-use host_context::{SystemContext,Endianness};
+use crate::host_context::{SystemContext,Endianness};
 use byteorder::{LittleEndian, BigEndian,ByteOrder};
 #[inline]
 pub fn load_unsigned_byte_with_host_pointer(ptr:&u8)->u8 {
@@ -27,14 +27,14 @@ pub fn load_signed_word_with_host_pointer_in_big_endian(ptr:&[u8])->i16 {
 }
 #[inline]
 pub fn load_unsigned_word_with_host_pointer_in_host_endian(system_context:&SystemContext,ptr:&[u8])->u16 {
-    match system_context.endianness {
+    match system_context.endianess {
         Endianness::Little=>return load_unsigned_word_with_host_pointer_in_little_endian(ptr),
         Endianness::Big=>return load_unsigned_word_with_host_pointer_in_big_endian(ptr)
     }
 }
 #[inline]
 pub fn load_signed_word_with_host_pointer_in_host_endian(system_context:&SystemContext,ptr:&[u8])->i16 {
-    match system_context.endianness {
+    match system_context.endianess {
         Endianness::Little=>return load_signed_word_with_host_pointer_in_little_endian(ptr),
         Endianness::Big=>return load_signed_word_with_host_pointer_in_big_endian(ptr)
     }

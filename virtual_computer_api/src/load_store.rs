@@ -59,11 +59,13 @@ pub fn load_signed_24bit_with_host_pointer_in_big_endian(ptr:&[u8])->i24 {
 pub fn load_unsigned_24bit_with_host_pointer_in_host_endian(system_context:&SystemContext,ptr:&[u8])->u24 {
     match system_context.endianess {
         Endianness::Little=>load_unsigned_24bit_with_host_pointer_in_little_endian(ptr),
-        Endianess::Big=>load_unsigned_24bit_with_host_pointer_in_big_endian(ptr)
+        Endianness::Big=>load_unsigned_24bit_with_host_pointer_in_big_endian(ptr)
+    }
 }
 #[inline]
 pub fn load_signed_24bit_with_host_pointer_in_host_endian(system_context:&SystemContext,ptr:&[u8])->i24 {
     match system_context.endianess {
         Endianness::Little=>load_signed_24bit_with_host_pointer_in_little_endian(ptr),
-        Endianess::Big=>load_signed_24bit_with_host_pointer_in_big_endian(ptr)
+        Endianness::Big=>load_signed_24bit_with_host_pointer_in_big_endian(ptr)
+    }
 }

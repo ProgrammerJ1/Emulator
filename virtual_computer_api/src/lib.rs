@@ -3,5 +3,6 @@
 pub mod host_context;
 pub mod bitoperations;
 pub mod load_store;
+pub mod arch;
 pub mod procressor;
 pub mod memory;

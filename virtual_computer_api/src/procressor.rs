@@ -1,3 +1,3 @@
-pub struct Procressor {
+/*pub struct Procressor {
     registers: 
-}
+}*/

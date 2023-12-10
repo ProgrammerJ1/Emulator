@@ -1,10 +1,10 @@
 use std::vec::Vec;
-use crate::system::SystemResources;
+//use crate::system::SystemResources;
 use crate::host_context::HostContext;
 pub enum Memory<'guestos> {
     RAM(&'guestos mut [u8]),
     ROM(&'guestos [u8]),
-    MMIO{memory: &'guestos mut [u8],read: fn (system_resources:SystemResources,host_context:HostContext),write:fn (system_resources:SystemResources,host_context:HostContext)}
+    //MMIO{memory: &'guestos mut [u8],read: fn (system_resources:SystemResources,host_context:HostContext),write:fn (system_resources:SystemResources,host_context:HostContext)}
 }
 pub struct MemoryRegion<'guestos> {
     pub address: usize,

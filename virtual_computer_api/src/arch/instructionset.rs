@@ -6,20 +6,21 @@ pub enum InstructionSize {
 }
 pub struct InstructionFormat {
     param_sizes: Box<[usize]>,
-    pub validate: fn (&self,bits:&BitSlice)->(bool,bool,usize)
+    short_circuiting: bool,
+    pub validate: fn (&self,bits:&BitSlice)->(bool,usize)
 }
 impl InstructionFormat {
-    pub fn new(param_sizes:&[usize],validator: fn (&self,bits:&BitSlice)->(bool,bool,usize))->Self {
-        Self{param_sizes,validator}
+    pub fn new(param_sizes:&[usize],short_circuiting:bool,validator: fn (&self,bits:&BitSlice)->(bool,usize))->Self {
+        Self{param_sizes,short_circuiting,validator}
     }
 }
 pub struct InstructionMode {
     size: InstructionSize,
-    instruction_formats: BTreeMap<u128,InstructionFormat>
+    formats: BTreeMap<u128,InstructionFormat>
 }
 impl InstructionMode {
-    pub fn initalize_context(size:InstructionSize,formats:Vec<fn (&Self,bits:&BitSlice)->(bool,bool,usize)>)->Self {
-        Self { size, instruction_formats: }
+    pub fn initalize_context(size:InstructionSize,formats:Vec<InstructionFormats>)->Self {
+        Self { size, formats}
     }
     pub fn pattern_match(&self,bits:&BitSlice)->&I {
         ;

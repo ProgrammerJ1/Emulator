@@ -20,10 +20,10 @@ impl InstructionSize {
 pub struct InstructionFormat {
     param_sizes: Box<[usize]>,
     short_circuiting: bool,
-    pub validate: fn (&self,bits:&BitSlice)->(bool,usize)
+    pub validate: fn (&self,bits:&BitSlice)->bool
 }
 impl InstructionFormat {
-    pub fn new(param_sizes:&[usize],short_circuiting:bool,validator: fn (&self,bits:&BitSlice)->(bool,usize))->Self {
+    pub fn new(param_sizes:&[usize],short_circuiting:bool,validator: fn (&self,bits:&BitSlice)->bool)->Self {
         Self{param_sizes,short_circuiting,validator}
     }
 }

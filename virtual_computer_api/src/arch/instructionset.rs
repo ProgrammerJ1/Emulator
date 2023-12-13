@@ -12,19 +12,19 @@ pub enum InstructionSize {
 impl InstructionSize {
     pub fn within_size(&self,bits:&BitSlice)->bool {
         match self {
-            Fixed(size)=>return size==bits.len(),
-            Variable(size_range)=>return size_range.contains(bits.len())
+            Self::Fixed(size)=>return size.clone()==bits.len(),
+            Self::Variable(size_range)=>return size_range.clone().contains(&bits.len())
         }
     }
 }
 pub struct InstructionFormat {
     param_sizes: Box<[usize]>,
     short_circuiting: bool,
-    pub validate: fn (&self,bits:&BitSlice)->bool
+    pub validate: fn (&Self,bits:&BitSlice)->bool
 }
 impl InstructionFormat {
-    pub fn new(param_sizes:&[usize],short_circuiting:bool,validator: fn (&self,bits:&BitSlice)->bool)->Self {
-        Self{param_sizes,short_circuiting,validator}
+    pub fn new(param_sizes:Vec<usize>,short_circuiting:bool,validator: fn (&Self,bits:&BitSlice)->bool)->Self {
+        Self{param_sizes:param_sizes.into_boxed_slice(),short_circuiting,validate: validator}
     }
 }
 pub struct InstructionMode {
@@ -32,20 +32,20 @@ pub struct InstructionMode {
     formats: Vec<InstructionFormat>
 }
 impl InstructionMode {
-    pub fn initalize_context(size:InstructionSize,formats:Vec<InstructionFormats>)->Self {
+    pub fn initalize_context(size:InstructionSize,formats:Vec<InstructionFormat>)->Self {
         Self { size, formats}
     }
-    pub fn pattern_match<'a>(&self,bits:&BitSlice)->Result<&'a InstructionFormat,InstructionError> {
+    pub fn pattern_match<'a>(&'a self,bits:&BitSlice)->Result<&'a InstructionFormat,InstructionError> {
         if self.formats.is_empty() {
             return Err(InstructionError::EmptySet);
-        } else if (!self.size.within_size(bits)) {
+        } else if !self.size.within_size(bits) {
             return Err(InstructionError::NotWithinISASize);
         } else {
             let mut best_match: Option<&'a InstructionFormat>=None;
-            for format in self.formats {
-                if (format.validate(bits)) {
+            for format in &self.formats {
+                if (format.validate)(format,bits) {
                     best_match=Some(format);
-                    if self.short_circuiting {
+                    if format.short_circuiting {
                         break;
                     }
                 }

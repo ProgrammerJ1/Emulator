@@ -5,6 +5,7 @@ pub enum InstructionError {
     NotWithinISASize,
     NoMatches,
 }
+#[derive(PartialEq, Eq)]
 pub enum InstructionSize {
     Fixed(usize),
     Variable(RangeInclusive<usize>)
@@ -17,6 +18,7 @@ impl InstructionSize {
         }
     }
 }
+#[derive(PartialEq, Eq)]
 pub struct InstructionFormat {
     param_sizes: Box<[usize]>,
     short_circuiting: bool,
@@ -32,7 +34,11 @@ pub struct InstructionMode {
     formats: Vec<InstructionFormat>
 }
 impl InstructionMode {
-    pub fn initalize_context(size:InstructionSize,formats:Vec<InstructionFormat>)->Self {
+    pub fn initalize_context(size:InstructionSize,formats:Vec<InstructionFormat>) {
+        //
+    }
+    #[inline(always)]
+    pub fn initalize_context_unchecked(size:InstructionSize,formats:Vec<InstructionFormat>)->Self {
         Self { size, formats}
     }
     pub fn pattern_match<'a>(&'a self,bits:&BitSlice)->Result<&'a InstructionFormat,InstructionError> {

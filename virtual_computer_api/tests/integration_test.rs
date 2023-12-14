@@ -23,7 +23,7 @@ pub fn bit_setting_test(rng: &mut ThreadRng) {
         modified_bits=[63-unsafe{old_number_strings[0].rfind('0').unwrap_unchecked()} as u64,63+(63-unsafe{old_number_strings[1].rfind('0').unwrap_unchecked()}) as u64,63-unsafe{old_number_strings[0].find('1').unwrap_unchecked()} as u64];
         new_number_strings=old_number_strings.clone();
         for i in 0..2 {
-            let chosen_bit=unsafe{new_number_strings[i].rmatch_indices('0').next().unwrap_unchecked().0};
+            let chosen_bit=modified_bits[i] as usize;
             *new_number_strings[i][chosen_bit..chosen_bit].as_mut_ptr()='1' as u8;
         }
     }

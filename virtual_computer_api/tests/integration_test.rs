@@ -1,8 +1,11 @@
 use virtual_computer_api;
 use rand::{rngs::ThreadRng,thread_rng,RngCore};
 #[test]
-pub fn bit_setting() {
+pub fn bits_operations() {
     let mut rng=thread_rng();
+    bit_setting_test(rng);
+}
+pub fn bit_setting_test(rng: &mut ThreadRng) {
     let mut numbers:[u64;3]=[rng.next_u64(),rng.next_u64(),rng.next_u64()];
     {
         for index in 0..3 {
@@ -21,7 +24,7 @@ pub fn bit_setting() {
         new_number_strings=old_number_strings.clone();
         for i in 0..2 {
             let chosen_bit=unsafe{new_number_strings[i].rmatch_indices('0').next().unwrap_unchecked().0};
-            new_number_strings[i][chosen_bit..chosen_bit]="1";
+            *new_number_strings[i][chosen_bit..chosen_bit].as_mut_ptr()='1' as u8;
         }
     }
     virtual_computer_api::bitoperations::BitOperations::set_bit(modified_bits[0], &mut numbers[0]);

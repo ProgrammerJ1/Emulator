@@ -1,2 +1,2 @@
-pub mod instructionset;
+pub mod instruction_set;
 pub mod microarch;

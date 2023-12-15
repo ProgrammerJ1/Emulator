@@ -11,9 +11,15 @@ pub enum InstructionSize {
     Variable(RangeInclusive<usize>)
 }
 impl InstructionSize {
+    pub fn cmp_size(&self,chosen_size:usize)->bool {
+        match self {
+            Self::Fixed(size)=>return chosen_size==*size,
+            Self::Variable(size_range)=>return size_range.clone().contains(&chosen_size)
+        }
+    }
     pub fn within_size(&self,bits:&BitSlice)->bool {
         match self {
-            Self::Fixed(size)=>return size.clone()==bits.len(),
+            Self::Fixed(size)=>return size.eq(&bits.len()),
             Self::Variable(size_range)=>return size_range.clone().contains(&bits.len())
         }
     }
@@ -34,8 +40,13 @@ pub struct InstructionMode {
     formats: Vec<InstructionFormat>
 }
 impl InstructionMode {
-    pub fn initalize_context(size:InstructionSize,formats:Vec<InstructionFormat>) {
-        //
+    pub fn initalize_context(size:InstructionSize,formats:Vec<InstructionFormat>)->Result<Self,()> {
+        for format in &formats {
+            if (!size.cmp_size(format.param_sizes.into_iter().sum())) {
+                return Err(())
+            }
+        }
+        Ok(Self::initalize_context_unchecked(size, formats))
     }
     #[inline(always)]
     pub fn initalize_context_unchecked(size:InstructionSize,formats:Vec<InstructionFormat>)->Self {

@@ -1,25 +1,28 @@
+use bitvec::{slice::BitSlice,order::Lsb0};
 use std::mem::size_of;
 use std::sync::Arc;
 //Structure holding these operations, bit operations inspired by qemu
 pub struct BitOperations;
 impl BitOperations {
-    //set a bit in memory
-    pub fn set_bit(nr: u64,address:&mut u64) {
-        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        *p|=1<<(nr%((size_of::<u64>()*8) as u64));
+    //set a bit in memory, will be interpreted LSB first.
+    pub fn set_bit<T>(nr: u128,data:&mut [T]) {
+        let bits: &mut BitSlice=data.view_bits_mut::<Lsb0>;
+        assert!(nr<bits.len()-1)
+        data.view_bits_mut::<Lsb0>.set(nr,true);
     }
     //set a bit in memory atomically
-    pub fn set_bit_atomically(nr: u64,address:&mut Arc<u64>) {
-        Self::set_bit(nr, Arc::<u64>::make_mut(address));
+    pub fn set_bit_atomically<T>(nr: u128,address:&mut Arc<mut [T]>) {
+        Self::set_bit(nr, Arc::<[T]>::make_mut(address));
     }
     //clear a bit in memory
-    pub fn clear_bit(nr: u64,address:&mut u64) {
-        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        *p&=!(1<<(nr%((size_of::<u64>()*8) as u64)));
+    pub fn clear_bit(nr: u128,address:&mut u64) {
+        let bits: &mut BitSlice=data.view_bits_mut::<Lsb0>;
+        assert!(nr<bits.len()-1)
+        data.view_bits_mut::<Lsb0>.set(nr,true);
     }
     //clear a bit in memory atomically
     pub fn clear_bit_atomically(nr: u64,address:&mut Arc<u64>) {
-        Self::clear_bit(nr, Arc::<u64>::make_mut(address));
+        Self::clear_bit(nr, Arc::<[T]>::make_mut(address));
     }
     //flip a bit
     pub fn change_bit(nr: u64,address:&mut u64) {

@@ -1,23 +1,37 @@
+use bitvec::order::BitOrder;
+use bitvec::view::BitView;
 use bitvec::{slice::BitSlice,order::Lsb0};
 use std::mem::size_of;
+use std::ops::Range;
 use std::sync::Arc;
 //Structure holding these operations, bit operations inspired by qemu
 pub struct BitOperations;
 impl BitOperations {
-    //set a bit in memory, will be interpreted LSB first.
-    pub fn set_bit<T>(nr: u128,data:&mut [T]) {
-        let bits: &mut BitSlice=data.view_bits_mut::<Lsb0>;
-        assert!(nr<bits.len()-1)
-        data.view_bits_mut::<Lsb0>.set(nr,true);
+    //set a bit in memory, in the provided bit order
+    pub fn set_bit<T,O>(nr: usize,data:&mut [T])
+    where O: BitOrder
+    {
+        let ptr_slice: &mut [u8];
+        unsafe {
+            let raw_ptr_range: Range<*mut T>=data.as_mut_ptr_range();
+            let start: *mut u8=raw_ptr_range.start.cast();
+            let real_end: *mut u8=raw_ptr_range.end.sub(1).cast();
+            let end: *mut u8=real_end.add(1);
+            ptr_slice=std::slice::from_mut_ptr_range(start..end);
+        }
+        let data: &mut BitSlice<u8, O>=ptr_slice.view_bits_mut::<O>();
+        assert!(data.len()-1>=nr);
+        data.set(nr, true)
     }
     //set a bit in memory atomically
-    pub fn set_bit_atomically<T>(nr: u128,address:&mut Arc<mut [T]>) {
-        Self::set_bit(nr, Arc::<[T]>::make_mut(address));
+    pub fn set_bit_atomically<T,O>(nr: usize,address:&mut [T]) {
+        let offset=nr/8;
+        Self::set_bit(nr, Arc::<&mut [T]>::get_mut(address).);
     }
     //clear a bit in memory
     pub fn clear_bit(nr: u128,address:&mut u64) {
         let bits: &mut BitSlice=data.view_bits_mut::<Lsb0>;
-        assert!(nr<bits.len()-1)
+        assert!(nr<bits.len()-1);
         data.view_bits_mut::<Lsb0>.set(nr,true);
     }
     //clear a bit in memory atomically

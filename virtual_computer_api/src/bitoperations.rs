@@ -4,7 +4,7 @@ use bitvec::{slice::BitSlice,order::Lsb0};
 use std::mem::size_of;
 use std::ops::Range;
 use std::sync::atomic::{AtomicU8, Ordering};
-//Structure holding these operations, bit operations inspired by qemu
+//Structure holding these operations, bit operations inspired (stolen from) by qemu
 pub struct BitOperations;
 impl BitOperations {
     //set a bit in memory, in the provided bit order
@@ -62,8 +62,26 @@ impl BitOperations {
         data.set(nr, false)
     }
     //clear a bit in memory atomically
-    pub fn clear_bit_atomically(nr: u64,address:&mut Arc<u64>) {
-        Self::clear_bit(nr, Arc::<[T]>::make_mut(address));
+    pub fn clear_bit_atomically<T,O>(nr: usize,data:&mut [T])
+    where O: BitOrder
+    {
+        let ptr_slice: &mut [u8];
+        unsafe {
+            let raw_ptr_range: Range<*mut T>=data.as_mut_ptr_range();
+            let start: *mut u8=raw_ptr_range.start.cast();
+            let real_end: *mut u8=raw_ptr_range.end.sub(1).cast();
+            let end: *mut u8=real_end.add(1);
+            ptr_slice=std::slice::from_mut_ptr_range(start..end);
+        }
+        let data: &mut BitSlice<u8, O>=ptr_slice.view_bits_mut::<O>();
+        assert!(data.len()-1>=nr);
+        {
+            let bit_ptr=unsafe{data.as_mut_bitptr().add(nr)}.raw_parts();
+            let address=bit_ptr.0.to_mut();
+            let bitmask=!(bit_ptr.1.select::<O>().into_inner());
+            let mut value=unsafe{AtomicU8::from_ptr(address)};
+            value.fetch_and(bitmask,Ordering::SeqCst);
+        }
     }
     //flip a bit
     pub fn change_bit(nr: u64,address:&mut u64) {

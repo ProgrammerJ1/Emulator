@@ -84,9 +84,20 @@ impl BitOperations {
         }
     }
     //flip a bit
-    pub fn change_bit(nr: u64,address:&mut u64) {
-        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        *p^=1<<(nr%((size_of::<u64>()*8) as u64));
+    pub fn change_bit<T,O>(nr: usize,data:&mut [T])
+    where O: BitOrder
+    {
+        let ptr_slice: &mut [u8];
+        unsafe {
+            let raw_ptr_range: Range<*mut T>=data.as_mut_ptr_range();
+            let start: *mut u8=raw_ptr_range.start.cast();
+            let real_end: *mut u8=raw_ptr_range.end.sub(1).cast();
+            let end: *mut u8=real_end.add(1);
+            ptr_slice=std::slice::from_mut_ptr_range(start..end);
+        }
+        let data: &mut BitSlice<u8, O>=ptr_slice.view_bits_mut::<O>();
+        assert!(data.len()-1>=nr);
+        data.set(nr, !(*data.get(nr).unwrap()))
     }
     //see if bit is set
     pub fn test_bit(nr: u64,address:&u64)->bool {

@@ -5,7 +5,7 @@ use std::mem::size_of;
 use std::ops::Range;
 use std::sync::atomic::{AtomicU8, Ordering};
 //Helper routines
-fn get_bit_slice<T,O,'a>(data: &&[T])->&BitSlice<u8,O>
+fn get_bit_slice<T,O>(data: &&[T])->&BitSlice<u8,O>
 where O: BitOrder
 {
     let ptr_slice: &[u8];
@@ -18,7 +18,7 @@ where O: BitOrder
     }
     return ptr_slice.view_bits<O>();
 }
-fn get_bit_slice_mut<T,O,'a>(data: &&mut [T])->&mut BitSlice<u8,O>
+fn get_bit_slice_mut<T,O>(data: &&mut [T])->&mut BitSlice<u8,O>
 where O: BitOrder
 {
     let ptr_slice: &mut [u8];
@@ -31,6 +31,7 @@ where O: BitOrder
     }
     return ptr_slice.view_bits_mut<O>();
 }
+fn get_atomic_bca<T,O>(bits:&
 //Structure holding these operations, bit operations inspired (stolen from) by qemu
 pub struct BitOperations;
 impl BitOperations {
@@ -38,7 +39,7 @@ impl BitOperations {
     pub fn set_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(data);
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
         assert!(data.len()-1>=nr);
         if atomic {
             let bit_ptr=unsafe{data.as_mut_bitptr().offset(nr)}.raw_parts();
@@ -54,7 +55,7 @@ impl BitOperations {
     pub fn clear_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(data);
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
         assert!(data.len()-1>=nr);
         if atomic {
             let bit_ptr=unsafe{data.as_mut_bitptr().add(nr)}.raw_parts();
@@ -70,7 +71,7 @@ impl BitOperations {
     pub fn change_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(data);
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
         assert!(data.len()-1>=nr);
         if atomic {
             let bit_ptr=unsafe{data.as_mut_bitptr().offset(nr)}.raw_parts();
@@ -83,18 +84,10 @@ impl BitOperations {
         }
     }
     //see if bit is set
-    pub fn test_bit<T,O>(nr: usize,data:&mut [T])->bool 
+    pub fn test_bit<T,O>(nr: usize,data:&[T])->bool 
     where O: BitOrder
     {
-        let ptr_slice: &mut [u8];
-        unsafe {
-            let raw_ptr_range: Range<*mut T>=data.as_mut_ptr_range();
-            let start: *mut u8=raw_ptr_range.start.cast();
-            let real_end: *mut u8=raw_ptr_range.end.sub(1).cast();
-            let end: *mut u8=real_end.add(1);
-            ptr_slice=std::slice::from_mut_ptr_range(start..end);
-        }
-        let data: &mut BitSlice<u8, O>=ptr_slice.view_bits_mut::<O>();
+        let data: &BitSlice<u8, O>=get_bit_slice(&data);
         assert!(data.len()-1>=nr);
         return *data.get(nr).unwrap()
     }

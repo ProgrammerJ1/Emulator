@@ -31,7 +31,15 @@ where O: BitOrder
     }
     return ptr_slice.view_bits_mut<O>();
 }
-fn get_atomic_bca<T,O>(bits:&
+fn get_atomic_bcv<'r,O>(bits:&mut BitSlice<u8,O>,nr: usize)->(&'r AtomicU8,u8)
+where O: BitOrder
+{
+    let bit_ptr=unsafe{data.as_mut_bitptr().add(nr)}.raw_parts();
+    let address=bit_ptr.0.to_mut();
+    let bitmask=!(bit_ptr.1.select::<O>().into_inner());
+    let mut value=unsafe{AtomicU8::from_ptr<'r>(address)};
+    return (value,bitmask)
+}
 //Structure holding these operations, bit operations inspired (stolen from) by qemu
 pub struct BitOperations;
 impl BitOperations {
@@ -42,10 +50,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let bit_ptr=unsafe{data.as_mut_bitptr().offset(nr)}.raw_parts();
-            let address=bit_ptr.0.to_mut();
-            let bitmask=bit_ptr.1.select::<O>().into_inner();
-            let mut value=unsafe{AtomicU8::from_ptr(address)};
+            let (value,bitmask)=get_atomic_bcv(data,nr);
             value.fetch_or(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, true);
@@ -58,10 +63,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let bit_ptr=unsafe{data.as_mut_bitptr().add(nr)}.raw_parts();
-            let address=bit_ptr.0.to_mut();
-            let bitmask=!(bit_ptr.1.select::<O>().into_inner());
-            let mut value=unsafe{AtomicU8::from_ptr(address)};
+            let (value,bitmask)=get_atomic_bcv(data,nr);
             value.fetch_and(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, false);
@@ -74,10 +76,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let bit_ptr=unsafe{data.as_mut_bitptr().offset(nr)}.raw_parts();
-            let address=bit_ptr.0.to_mut();
-            let bitmask=bit_ptr.1.select::<O>().into_inner();
-            let mut value=unsafe{AtomicU8::from_ptr(address)};
+            let (value,bitmask)=get_atomic_bcv(data,nr);
             value.fetch_xor(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, !(*data.get(nr).unwrap()));

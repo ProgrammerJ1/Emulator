@@ -148,86 +148,99 @@ impl BitOperations {
         return data.len(); 
     }
     //find next set bit
-    pub fn find_next_bit(address:&u64,offset:u64,size:u64)->u64 {
-        if offset>=size {
-            return size;
+    pub fn find_next_bit<T,O>(data: &[T],offset:usize)->usize
+    where O: BitOrder
+    {
+        let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
+        if offset>=data.len() {
+            return data.len();
         }
-        for nr in offset..size {
-            if Self::test_bit(nr,address) {
+        for nr in offset..data.len() {
+            if Self::test_bit::<T,O>(nr,data) {
                 return nr;
             }
         }
-        return size 
+        return data.len() 
     }
     //find next cleared bit
-    pub fn find_next_zero_bit(address:&u64,offset:u64,size:u64)->u64 {
-        if offset>=size {
-            return size;
+    pub fn find_next_zero_bit<T,O>(data: &[T],offset:usize)->usize
+    where O: BitOrder
+    {
+        let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
+        if offset>=data.len() {
+            return data.len();
         }
-        for nr in offset..size {
-            if !Self::test_bit(nr,address) {
+        for nr in offset..data.len() {
+            if !Self::test_bit::<T,O>(nr,data) {
                 return nr;
             }
         }
-        return size 
+        return data.len() 
     }
     //find first set bit
-    pub fn find_first_bit(address:&u64,offset:u64,size:u64)->u64 {
-        if offset>=size {
-            return size;
-        }
-        for nr in 0..size {
-            if Self::test_bit(nr,address) {
+    pub fn find_first_bit<T,O>(data:&[T])->usize
+    where O: BitOrder
+    {
+        for nr in 0..data.len() {
+            if Self::test_bit::<T,O>(nr,data) {
                 return nr;
             }
         }
-        return size 
+        return data.len() 
     }
     //find first cleared bit
-    pub fn find_first_zero_bit(address:&u64,offset:u64,size:u64)->u64 {
-        if offset>=size {
-            return size;
-        }
-        for nr in 0..size {
-            if !Self::test_bit(nr,address) {
+    pub fn find_first_zero_bit<T,O>(data:&[T])->usize
+    where O: BitOrder
+    {
+        for nr in 0..data.len() {
+            if !Self::test_bit::<T,O>(nr,data) {
                 return nr;
             }
         }
-        return size;
+        return data.len();
     }
     //rotate 8 bit value left
+    #[inline(always)]
     pub fn rol8(word:u8,n:u32)->u8 {
         word.rotate_left(n)
     }
     //rotate 8 bit value right
+    #[inline(always)]
     pub fn ror8(word:u8,n:u32)->u8 {
         word.rotate_right(n)
     }
     //rotate 16 bit value left
+    #[inline(always)]
     pub fn rol16(word:u16,n:u32)->u16 {
         word.rotate_left(n)
     }
     //rotate 16 bit value right
+    #[inline(always)]
     pub fn ror16(word:u16,n:u32)->u16 {
         word.rotate_right(n)
     }
     //rotate 32 bit value left
+    #[inline(always)]
     pub fn rol32(word:u32,n:u32)->u32 {
         word.rotate_left(n)
     }
     //rotate 32 bit value right
+    #[inline(always)]
     pub fn ror32(word:u32,n:u32)->u32 {
         word.rotate_right(n)
     }
     //rotate 64 bit value left
+    #[inline(always)]
     pub fn rol64(word:u64,n:u32)->u64 {
         word.rotate_left(n)
     }
     //rotate 64 bit value right
+    #[inline(always)]
     pub fn ror64(word:u64,n:u32)->u64 {
         word.rotate_right(n)
     }
     //swap 16 bit halfwords in a 32 bit word
+    #[inline(always)]
     pub fn hswap32(value:u32)->u32 {
         return value.rotate_left(16)
     }

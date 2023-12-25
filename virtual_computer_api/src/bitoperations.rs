@@ -251,6 +251,7 @@ impl BitOperations {
         return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
     }
     //swap 32 bit words in a 64 bit word
+    #[inline(always)]
     pub fn wswap64(value: u64)->u64 {
         return value.rotate_left(32);
     }

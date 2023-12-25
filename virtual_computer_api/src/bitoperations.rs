@@ -97,7 +97,9 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
         assert!(data.len()-1>=nr);
         let status=*data.get(nr).unwrap();
-        
+        let centered_data=std::slice::from_mut(unsafe{data.as_mut_bitptr().add(nr).address().as_mut()}.unwrap());
+        Self::set_bit::<u8,O>(nr%8, centered_data, atomic);
+        return status;
     }
     //see if bit is set and clear bit
     pub fn test_and_clear_bit(nr: u64,address:&mut u64)->bool {

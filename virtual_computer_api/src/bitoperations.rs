@@ -124,22 +124,28 @@ impl BitOperations {
         return status;
     }
     //return last set bit in a memory range
-    pub fn find_last_bit(address:&u64,size:u64)->u64 {
-        for nr in (0..size).rev() {
-            if Self::test_bit(nr,address) {
+    pub fn find_last_bit<T,O>(data:&[T])->usize
+    where O: BitOrder
+    {
+        let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
+        for nr in (0..bit_data.len()).rev() {
+            if *bit_data.get(nr).unwrap() {
                 return nr;
             }
         }
-        return size 
+        return data.len();
     }
     //return last cleared bit in a memory range
-    pub fn find_last_zero_bit(address:&u64,size:u64)->u64 {
-        for nr in (0..size).rev() {
-            if !Self::test_bit(nr,address) {
+    pub fn find_last_zero_bit<T,O>(data: &[T])->usize
+    where O: BitOrder
+    {
+        let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
+        for nr in (0..data.len()).rev() {
+            if !(*bit_data.get(nr).unwrap()) {
                 return nr;
             }
         }
-        return size 
+        return data.len(); 
     }
     //find next set bit
     pub fn find_next_bit(address:&u64,offset:u64,size:u64)->u64 {

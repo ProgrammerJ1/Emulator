@@ -31,7 +31,7 @@ where O: BitOrder
     }
     return ptr_slice.view_bits_mut::<O>();
 }
-fn get_atomic_bcv<'r,O>(bits:&mut BitSlice<u8,O>,nr: usize)->(&'r AtomicU8,u8)
+fn get_atomic_bcav<'r,O>(bits:&mut BitSlice<u8,O>,nr: usize)->(&'r AtomicU8,u8)
 where O: BitOrder
 {
     let bit_ptr=unsafe{bits.as_mut_bitptr().add(nr)}.raw_parts();
@@ -50,7 +50,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcv(data,nr);
+            let (value,bitmask)=get_atomic_bcav(data,nr);
             value.fetch_or(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, true);
@@ -63,7 +63,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcv(data,nr);
+            let (value,bitmask)=get_atomic_bcav(data,nr);
             value.fetch_and(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, false);
@@ -76,7 +76,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcv(data,nr);
+            let (value,bitmask)=get_atomic_bcav(data,nr);
             value.fetch_xor(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, !(*data.get(nr).unwrap()));
@@ -94,7 +94,10 @@ impl BitOperations {
     pub fn test_and_set_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)->bool 
     where O: BitOrder
     {
-        //
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
+        assert!(data.len()-1>=nr);
+        let status=*data.get(nr).unwrap();
+        
     }
     //see if bit is set and clear bit
     pub fn test_and_clear_bit(nr: u64,address:&mut u64)->bool {

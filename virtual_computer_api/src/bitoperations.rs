@@ -102,18 +102,26 @@ impl BitOperations {
         return status;
     }
     //see if bit is set and clear bit
-    pub fn test_and_clear_bit(nr: u64,address:&mut u64)->bool {
-        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        let res=Self::test_bit(nr,address);
-        Self::clear_bit(nr%((size_of::<u64>()*8) as u64), p);
-        return res;
+    pub fn test_and_clear_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)->bool
+    where O: BitOrder
+    {
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
+        assert!(data.len()-1>=nr);
+        let status=*data.get(nr).unwrap();
+        let centered_data=std::slice::from_mut(unsafe{data.as_mut_bitptr().add(nr).address().as_mut()}.unwrap());
+        Self::clear_bit::<u8,O>(nr%8, centered_data, atomic);
+        return status;
     }
     //see if bit is set and change bit
-    pub fn test_and_change_bit(nr: u64,address:&mut u64)->bool {
-        let p=unsafe{std::ptr::from_mut(address).offset((nr/((size_of::<u64>()*8) as u64)) as isize).as_mut()}.unwrap();
-        let res=Self::test_bit(nr,address);
-        Self::change_bit(nr%((size_of::<u64>()*8) as u64), p);
-        return res;
+    pub fn test_and_change_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)->bool
+    where O: BitOrder
+    {
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
+        assert!(data.len()-1>=nr);
+        let status=*data.get(nr).unwrap();
+        let centered_data=std::slice::from_mut(unsafe{data.as_mut_bitptr().add(nr).address().as_mut()}.unwrap());
+        Self::change_bit::<u8,O>(nr%8, centered_data, atomic);
+        return status;
     }
     //return last set bit in a memory range
     pub fn find_last_bit(address:&u64,size:u64)->u64 {

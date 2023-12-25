@@ -5,20 +5,20 @@ use std::mem::size_of;
 use std::ops::Range;
 use std::sync::atomic::{AtomicU8, Ordering};
 //Helper routines
-fn get_bit_slice<T,O>(data: &&[T])->&BitSlice<u8,O>
+fn get_bit_slice<T,O>(data: &[T])->&BitSlice<u8,O>
 where O: BitOrder
 {
     let ptr_slice: &[u8];
     unsafe {
-        let raw_ptr_range: Range<*T>=data.as_ptr_range();
-        let start: *u8=raw_ptr_range.start.cast();
-        let real_end: *u8=raw_ptr_range.end.sub(1).cast();
-        let end: *u8=real_end.add(1);
+        let raw_ptr_range: Range<*const T>=data.as_ptr_range();
+        let start: *const u8=raw_ptr_range.start.cast();
+        let real_end: *const u8=raw_ptr_range.end.sub(1).cast();
+        let end: *const u8=real_end.add(1);
         ptr_slice=std::slice::from_ptr_range(start..end);
     }
-    return ptr_slice.view_bits<O>();
+    return ptr_slice.view_bits::<O>();
 }
-fn get_bit_slice_mut<T,O>(data: &&mut [T])->&mut BitSlice<u8,O>
+fn get_bit_slice_mut<T,O>(data: &mut [T])->&mut BitSlice<u8,O>
 where O: BitOrder
 {
     let ptr_slice: &mut [u8];
@@ -29,15 +29,15 @@ where O: BitOrder
         let end: *mut u8=real_end.add(1);
         ptr_slice=std::slice::from_mut_ptr_range(start..end);
     }
-    return ptr_slice.view_bits_mut<O>();
+    return ptr_slice.view_bits_mut::<O>();
 }
 fn get_atomic_bcv<'r,O>(bits:&mut BitSlice<u8,O>,nr: usize)->(&'r AtomicU8,u8)
 where O: BitOrder
 {
-    let bit_ptr=unsafe{data.as_mut_bitptr().add(nr)}.raw_parts();
+    let bit_ptr=unsafe{bits.as_mut_bitptr().add(nr)}.raw_parts();
     let address=bit_ptr.0.to_mut();
     let bitmask=!(bit_ptr.1.select::<O>().into_inner());
-    let mut value=unsafe{AtomicU8::from_ptr<'r>(address)};
+    let mut value=unsafe{AtomicU8::from_ptr(address)};
     return (value,bitmask)
 }
 //Structure holding these operations, bit operations inspired (stolen from) by qemu

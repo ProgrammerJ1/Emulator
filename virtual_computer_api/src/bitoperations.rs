@@ -47,7 +47,7 @@ impl BitOperations {
     pub fn set_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
             let (value,bitmask)=get_atomic_bcv(data,nr);
@@ -60,7 +60,7 @@ impl BitOperations {
     pub fn clear_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
             let (value,bitmask)=get_atomic_bcv(data,nr);
@@ -73,7 +73,7 @@ impl BitOperations {
     pub fn change_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut<T,O>(&data);
+        let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
             let (value,bitmask)=get_atomic_bcv(data,nr);

@@ -258,22 +258,22 @@ impl BitOperations {
     //extract a value from a 32 bit number
     pub fn extract32(value:u32,start:u32,length:u32)->u32 {
         assert!(length>0&&length<=32);
-        return (value>>start)&(2_u32.pow(32-length-1)&(2_u32.pow(length-1)-1))
+        return (value>>start)&(2_u32.pow(length-1)&(2_u32.pow(length-1)-1))
     }
     //extract a value from a 8 bit number
     pub fn extract8(value:u8,start:u32,length:u32)->u8 {
         assert!(length>0&&length<=8);
-        return (value>>start)&(2_u8.pow(8-length-1)&(2_u8.pow(length-1)-1))
+        return (value>>start)&(2_u8.pow(length-1)&(2_u8.pow(length-1)-1))
     }
     //extract a value from a 16 bit number
     pub fn extract16(value:u16,start:u32,length:u32)->u16 {
         assert!(length>0&&length<=16);
-        return (value>>start)&(2_u16.pow(16-length-1)&(2_u16.pow(length-1)-1))
+        return (value>>start)&(2_u16.pow(length-1)&(2_u16.pow(length-1)-1))
     }
     //extract a value from a 64 bit number
     pub fn extract64(value:u64,start:u32,length:u32)->u64 {
         assert!(length>0&&length<=64);
-        return (value>>start)&(2_u64.pow(64-length-1)&(2_u64.pow(length-1)-1));
+        return (value>>start)&(2_u64.pow(length-1)&(2_u64.pow(length-1)-1));
     }
     //extract a signed extended value from a 32 bit number
     pub fn sextract32(value:u32,start:u32,length:u32)->i32 {

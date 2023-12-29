@@ -56,11 +56,35 @@ impl BitOperations {
             data.set(nr, true);
         }
     }
+    //set bits in raw bits slice
+    pub fn set_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
+    where O: BitOrder
+    {
+        assert!(data.len()-1>=nr);
+        if atomic {
+            let (value,bitmask)=get_atomic_bcav(data,nr);
+            value.fetch_or(bitmask,Ordering::SeqCst);
+        } else {
+            data.set(nr, true);
+        }
+    }
     //clear a bit in memory
     pub fn clear_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
     where O: BitOrder
     {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
+        assert!(data.len()-1>=nr);
+        if atomic {
+            let (value,bitmask)=get_atomic_bcav(data,nr);
+            value.fetch_and(bitmask,Ordering::SeqCst);
+        } else {
+            data.set(nr, false);
+        }
+    }
+    //clear bits in raw bits slice
+    pub fn clear_bit_in_raw_bits<T,O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
+    where O: BitOrder
+    {
         assert!(data.len()-1>=nr);
         if atomic {
             let (value,bitmask)=get_atomic_bcav(data,nr);
@@ -79,7 +103,21 @@ impl BitOperations {
             let (value,bitmask)=get_atomic_bcav(data,nr);
             value.fetch_xor(bitmask,Ordering::SeqCst);
         } else {
-            data.set(nr, !(*data.get(nr).unwrap()));
+            let org_value=*data.get(nr).unwrap();
+            data.set(nr, !org_value);
+        }
+    }
+    //flip a bit in bits slice
+    pub fn change_bit_in_raw_bits<T,O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
+    where O: BitOrder
+    {
+        assert!(data.len()-1>=nr);
+        if atomic {
+            let (value,bitmask)=get_atomic_bcav(data,nr);
+            value.fetch_xor(bitmask,Ordering::SeqCst);
+        } else {
+            let org_value=*data.get(nr).unwrap();
+            data.set(nr, !org_value);
         }
     }
     //see if bit is set

@@ -128,6 +128,13 @@ impl BitOperations {
         assert!(data.len()-1>=nr);
         return *data.get(nr).unwrap()
     }
+    //see if bit is set in raw bits
+    pub fn test_bit_in_raw_bits<O>(nr: usize,data:&BitSlice<u8,O>)->bool 
+    where O: BitOrder
+    {
+        assert!(data.len()-1>=nr);
+        return *data.get(nr).unwrap()
+    }
     //see if bit is set and set bit
     pub fn test_and_set_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)->bool 
     where O: BitOrder
@@ -135,8 +142,16 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
         assert!(data.len()-1>=nr);
         let status=*data.get(nr).unwrap();
-        let centered_data=std::slice::from_mut(unsafe{data.as_mut_bitptr().add(nr).address().as_mut()}.unwrap());
-        Self::set_bit::<u8,O>(nr%8, centered_data, atomic);
+        Self::set_bit_in_raw_bits::<O>(nr, data, atomic);
+        return status;
+    }
+    //see if bit is set and set bit in raw bits
+    pub fn test_and_set_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)->bool 
+    where O: BitOrder
+    {
+        assert!(data.len()-1>=nr);
+        let status=*data.get(nr).unwrap();
+        Self::set_bit_in_raw_bits::<O>(nr, data, atomic);
         return status;
     }
     //see if bit is set and clear bit
@@ -146,8 +161,16 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
         assert!(data.len()-1>=nr);
         let status=*data.get(nr).unwrap();
-        let centered_data=std::slice::from_mut(unsafe{data.as_mut_bitptr().add(nr).address().as_mut()}.unwrap());
-        Self::clear_bit::<u8,O>(nr%8, centered_data, atomic);
+        Self::clear_bit_in_raw_bits(nr, data, atomic);
+        return status;
+    }
+    //see if bit is set and clear bit in raw bitset
+    pub fn test_and_clear_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)->bool
+    where O: BitOrder
+    {
+        assert!(data.len()-1>=nr);
+        let status=*data.get(nr).unwrap();
+        Self::clear_bit_in_raw_bits::<O>(nr, data, atomic);
         return status;
     }
     //see if bit is set and change bit
@@ -157,8 +180,17 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
         assert!(data.len()-1>=nr);
         let status=*data.get(nr).unwrap();
-        let centered_data=std::slice::from_mut(unsafe{data.as_mut_bitptr().add(nr).address().as_mut()}.unwrap());
-        Self::change_bit::<u8,O>(nr%8, centered_data, atomic);
+        Self::change_bit_in_raw_bits::<O>(nr, data, atomic);
+        return status;
+    }
+    
+    //see if bit is set and change bit in raw bitset
+    pub fn test_and_change_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)->bool
+    where O: BitOrder
+    {
+        assert!(data.len()-1>=nr);
+        let status=*data.get(nr).unwrap();
+        Self::change_bit_in_raw_bits::<O>(nr, data, atomic);
         return status;
     }
     //return last set bit in a memory range

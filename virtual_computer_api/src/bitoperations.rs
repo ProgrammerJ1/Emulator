@@ -205,7 +205,7 @@ impl BitOperations {
         }
         return data.len();
     }
-    //return last set bit in a memory range in raw bitset
+    //return last set bit index in a memory range in raw bitset
     pub fn find_last_bit_in_raw_bitset<O>(bit_data:&BitSlice<u8,O>)->usize
     where O: BitOrder
     {

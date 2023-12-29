@@ -205,6 +205,17 @@ impl BitOperations {
         }
         return data.len();
     }
+    //return last set bit in a memory range in raw bitset
+    pub fn find_last_bit_in_raw_bitset<O>(bit_data:&BitSlice<u8,O>)->usize
+    where O: BitOrder
+    {
+        for nr in (0..bit_data.len()).rev() {
+            if *bit_data.get(nr).unwrap() {
+                return nr;
+            }
+        }
+        return bit_data.len();
+    }
     //return last cleared bit in a memory range
     pub fn find_last_zero_bit<T,O>(data: &[T])->usize
     where O: BitOrder

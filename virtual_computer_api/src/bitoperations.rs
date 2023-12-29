@@ -272,16 +272,30 @@ impl BitOperations {
     pub fn find_next_zero_bit<T,O>(data: &[T],offset:usize)->usize
     where O: BitOrder
     {
-        let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
+        let data:&BitSlice<u8,O>=get_bit_slice(data);
         if offset>=data.len() {
             return data.len();
         }
         for nr in offset..data.len() {
-            if !Self::test_bit::<T,O>(nr,data) {
+            if !(*data.get(nr).unwrap()) {
                 return nr;
             }
         }
         return data.len() 
+    }
+    //find next cleared bit in 
+    pub fn find_next_zero_bit_in_raw_bits<O>(bit_data: &BitSlice<u8,O>,offset:usize)->usize
+    where O: BitOrder
+    {
+        if offset>=bit_data.len() {
+            return bit_data.len();
+        }
+        for nr in offset..bit_data.len() {
+            if !(*bit_data.get(nr).unwrap()) {
+                return nr;
+            }
+        }
+        return bit_data.len() 
     }
     //find first set bit
     pub fn find_first_bit<T,O>(data:&[T])->usize

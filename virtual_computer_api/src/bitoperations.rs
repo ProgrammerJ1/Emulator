@@ -82,7 +82,7 @@ impl BitOperations {
         }
     }
     //clear bits in raw bits slice
-    pub fn clear_bit_in_raw_bits<T,O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
+    pub fn clear_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
     where O: BitOrder
     {
         assert!(data.len()-1>=nr);
@@ -108,7 +108,7 @@ impl BitOperations {
         }
     }
     //flip a bit in bits slice
-    pub fn change_bit_in_raw_bits<T,O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
+    pub fn change_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
     where O: BitOrder
     {
         assert!(data.len()-1>=nr);

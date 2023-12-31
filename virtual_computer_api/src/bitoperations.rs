@@ -31,13 +31,13 @@ where O: BitOrder
     }
     return ptr_slice.view_bits_mut::<O>();
 }
-fn get_atomic_bcav<'r,O>(bits:&mut BitSlice<u8,O>,nr: usize)->(&'r AtomicU8,u8)
+fn get_atomic_bit_control_values<'r,O>(bits:&mut BitSlice<u8,O>,nr: usize)->(&'r AtomicU8,u8)
 where O: BitOrder
 {
     let bit_ptr=unsafe{bits.as_mut_bitptr().add(nr)}.raw_parts();
     let address=bit_ptr.0.to_mut();
     let bitmask=!(bit_ptr.1.select::<O>().into_inner());
-    let mut value=unsafe{AtomicU8::from_ptr(address)};
+    let value=unsafe{AtomicU8::from_ptr(address)};
     return (value,bitmask)
 }
 //Structure holding these operations, bit operations inspired (stolen from) by qemu
@@ -50,7 +50,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcav(data,nr);
+            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
             value.fetch_or(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, true);
@@ -62,7 +62,7 @@ impl BitOperations {
     {
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcav(data,nr);
+            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
             value.fetch_or(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, true);
@@ -75,7 +75,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcav(data,nr);
+            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
             value.fetch_and(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, false);
@@ -87,7 +87,7 @@ impl BitOperations {
     {
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcav(data,nr);
+            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
             value.fetch_and(bitmask,Ordering::SeqCst);
         } else {
             data.set(nr, false);
@@ -100,7 +100,7 @@ impl BitOperations {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcav(data,nr);
+            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
             value.fetch_xor(bitmask,Ordering::SeqCst);
         } else {
             let org_value=*data.get(nr).unwrap();
@@ -113,7 +113,7 @@ impl BitOperations {
     {
         assert!(data.len()-1>=nr);
         if atomic {
-            let (value,bitmask)=get_atomic_bcav(data,nr);
+            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
             value.fetch_xor(bitmask,Ordering::SeqCst);
         } else {
             let org_value=*data.get(nr).unwrap();
@@ -301,8 +301,20 @@ impl BitOperations {
     pub fn find_first_bit<T,O>(data:&[T])->usize
     where O: BitOrder
     {
+        let data: &BitSlice<u8,O>=get_bit_slice(data);
         for nr in 0..data.len() {
-            if Self::test_bit::<T,O>(nr,data) {
+            if *data.get(nr).unwrap() {
+                return nr;
+            }
+        }
+        return data.len() 
+    }
+    //find first set bit in raw bitset
+    pub fn find_first_bit_in_raw_bits<T,O>(data:&BitSlice<u8,O>)->usize
+    where O: BitOrder
+    {
+        for nr in 0..data.len() {
+            if *data.get(nr).unwrap() {
                 return nr;
             }
         }
@@ -312,8 +324,20 @@ impl BitOperations {
     pub fn find_first_zero_bit<T,O>(data:&[T])->usize
     where O: BitOrder
     {
+        let data: &BitSlice<u8,O>=get_bit_slice(data);
         for nr in 0..data.len() {
-            if !Self::test_bit::<T,O>(nr,data) {
+            if !(*data.get(nr).unwrap()) {
+                return nr;
+            }
+        }
+        return data.len();
+    }
+    //find first cleared bit in raw bitset
+    pub fn find_first_zero_bit_in_raw_bits<T,O>(data:&BitSlice<u8,O>)->usize
+    where O: BitOrder
+    {
+        for nr in 0..data.len() {
+            if !(*data.get(nr).unwrap()) {
                 return nr;
             }
         }

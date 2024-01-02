@@ -345,42 +345,42 @@ impl BitOperations {
     }
     //rotate 8 bit value left
     #[inline(always)]
-    pub fn rol8(word:u8,n:u32)->u8 {
+    pub fn rotate_left_u8(word:u8,n:u32)->u8 {
         word.rotate_left(n)
     }
     //rotate 8 bit value right
     #[inline(always)]
-    pub fn ror8(word:u8,n:u32)->u8 {
+    pub fn rotate_right_u8(word:u8,n:u32)->u8 {
         word.rotate_right(n)
     }
     //rotate 16 bit value left
     #[inline(always)]
-    pub fn rol16(word:u16,n:u32)->u16 {
+    pub fn rotate_left_u16(word:u16,n:u32)->u16 {
         word.rotate_left(n)
     }
     //rotate 16 bit value right
     #[inline(always)]
-    pub fn ror16(word:u16,n:u32)->u16 {
+    pub fn rotate_right_u16(word:u16,n:u32)->u16 {
         word.rotate_right(n)
     }
     //rotate 32 bit value left
     #[inline(always)]
-    pub fn rol32(word:u32,n:u32)->u32 {
+    pub fn rotate_left_u32(word:u32,n:u32)->u32 {
         word.rotate_left(n)
     }
     //rotate 32 bit value right
     #[inline(always)]
-    pub fn ror32(word:u32,n:u32)->u32 {
+    pub fn rotate_right_u32(word:u32,n:u32)->u32 {
         word.rotate_right(n)
     }
     //rotate 64 bit value left
     #[inline(always)]
-    pub fn rol64(word:u64,n:u32)->u64 {
+    pub fn rotate_left_u64(word:u64,n:u32)->u64 {
         word.rotate_left(n)
     }
     //rotate 64 bit value right
     #[inline(always)]
-    pub fn ror64(word:u64,n:u32)->u64 {
+    pub fn rotate_right_u64(word:u64,n:u32)->u64 {
         word.rotate_right(n)
     }
     //swap 16 bit halfwords in a 32 bit word

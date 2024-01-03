@@ -376,8 +376,7 @@ impl BitOperations {
     pub fn rotate_left_u16(word:u16,n:u32)->u16 {
         word.rotate_left(n)
     }
-    //rotate referenced 16 bit value left, assumes leftmost bit is highest value bit 
-    #[inline(always)]
+    //rotate referenced 16 bit value left, assumes leftmost bit is highest value bit
     pub fn rotate_left_u16_direct(word:&mut u16,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU16::from_mut(word);
@@ -390,6 +389,15 @@ impl BitOperations {
     #[inline(always)]
     pub fn rotate_right_u16(word:u16,n:u32)->u16 {
         word.rotate_right(n)
+    }
+    //rotate referenced 16 bit value right, assumes rightmost bit is highest value bit
+    pub fn rotate_right_u16_direct(word:&mut u16,n:u32,atomic:bool) {
+        if atomic {
+            let atomic_value=AtomicU16::from_mut(word);
+            atomic_value.swap(word.clone().rotate_right(n),Ordering::SeqCst);
+        } else {
+            *word=word.clone().rotate_right(n);
+        }
     }
     //rotate 32 bit value left
     #[inline(always)]

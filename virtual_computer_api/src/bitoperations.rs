@@ -380,7 +380,7 @@ impl BitOperations {
     #[inline(always)]
     pub fn rotate_left_u16_direct(word:&mut u16,n:u32,atomic:bool) {
         if atomic {
-            let atomic_value=AtomicU8::from_mut(word);
+            let atomic_value=AtomicU16::from_mut(word);
             atomic_value.swap(word.clone().rotate_left(n));
         } else {
             *word=word.clone().rotate_left(n);

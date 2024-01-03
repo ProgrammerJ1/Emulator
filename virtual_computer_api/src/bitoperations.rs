@@ -3,7 +3,7 @@ use bitvec::view::BitView;
 use bitvec::{slice::BitSlice,order::Lsb0};
 use std::mem::size_of;
 use std::ops::Range;
-use std::sync::atomic::{AtomicU8, Ordering};
+use std::sync::atomic::{AtomicU8,AtomicU16, Ordering};
 //Helper routines
 fn get_bit_slice<T,O>(data: &[T])->&BitSlice<u8,O>
 where O: BitOrder
@@ -343,20 +343,48 @@ impl BitOperations {
         }
         return data.len();
     }
-    //rotate 8 bit value left
+    //rotate 8 bit value left, assumes leftmost bit is highest value bit
     #[inline(always)]
     pub fn rotate_left_u8(word:u8,n:u32)->u8 {
         word.rotate_left(n)
     }
-    //rotate 8 bit value right
+    //rotate referenced 8 bit value left, assumes leftmost bit is highest value bit
+    pub fn rotate_left_u8_direct(word:&mut u8,n:u32,atomic:bool) {
+        if atomic {
+            let atomic_value=AtomicU8::from_mut(word);
+            atomic_value.swap(word.clone().rotate_left(n));
+        } else {
+            *word=word.clone().rotate_left(n);
+        }
+    }
+    //rotate 8 bit value right, assumes rightmost bit is lowest value bit
     #[inline(always)]
     pub fn rotate_right_u8(word:u8,n:u32)->u8 {
         word.rotate_right(n)
     }
-    //rotate 16 bit value left
+    //rotate referenced 8 bit value right, assumes rightmost bit is lowest value bit
+    pub fn rotate_right_u8_direct(word:&mut u8,n:u32,atomic:bool) {
+        if atomic {
+            let atomic_value=AtomicU8::from_mut(word);
+            atomic_value.swap(word.clone().rotate_right(n));
+        } else {
+            *word=word.clone().rotate_right(n);
+        }
+    }
+    //rotate 16 bit value left, assumes leftmost bit is highest value bit
     #[inline(always)]
     pub fn rotate_left_u16(word:u16,n:u32)->u16 {
         word.rotate_left(n)
+    }
+    //rotate referenced 16 bit value left, assumes leftmost bit is highest value bit 
+    #[inline(always)]
+    pub fn rotate_left_u16_direct(word:&mut u16,n:u32,atomic:bool) {
+        if atomic {
+            let atomic_value=AtomicU8::from_mut(word);
+            atomic_value.swap(word.clone().rotate_left(n));
+        } else {
+            *word=word.clone().rotate_left(n);
+        }
     }
     //rotate 16 bit value right
     #[inline(always)]

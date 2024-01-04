@@ -3,7 +3,7 @@ use bitvec::view::BitView;
 use bitvec::{slice::BitSlice,order::Lsb0};
 use std::mem::size_of;
 use std::ops::Range;
-use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, AtomicU64, Ordering};
 //Helper routines
 fn get_bit_slice<T,O>(data: &[T])->&BitSlice<u8,O>
 where O: BitOrder
@@ -432,10 +432,28 @@ impl BitOperations {
     pub fn rotate_left_u64(word:u64,n:u32)->u64 {
         word.rotate_left(n)
     }
+    //rotate referenced 64 bit value left, assumes leftmost bit is highest value bit
+    pub fn rotate_left_u64_direct(word:&mut u64,n:u32,atomic:bool) {
+        if atomic {
+            let atomic_value=AtomicU64::from_mut(word);
+            atomic_value.swap(word.clone().rotate_left(n),Ordering::SeqCst);
+        } else {
+            *word=word.clone().rotate_left(n);
+        }
+    }
     //rotate 64 bit value right
     #[inline(always)]
     pub fn rotate_right_u64(word:u64,n:u32)->u64 {
         word.rotate_right(n)
+    }
+    //rotate referenced 64 bit value right, assumes rightmost bit is lowest value bit
+    pub fn rotate_right_u64_direct(word:&mut u64,n:u32,atomic:bool) {
+        if atomic {
+            let atomic_value=AtomicU64::from_mut(word);
+            atomic_value.swap(word.clone().rotate_left(n),Ordering::SeqCst);
+        } else {
+            *word=word.clone().rotate_left(n);
+        }
     }
     //swap 16 bit halfwords in a 32 bit word
     #[inline(always)]

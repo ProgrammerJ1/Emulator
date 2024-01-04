@@ -477,18 +477,18 @@ impl BitOperations {
     }
     //swap 16 bit halfwords in a 32 bit word
     #[inline(always)]
-    pub fn hswap32(value:u32)->u32 {
+    pub fn halfword_swap_u32(value:u32)->u32 {
         return value.rotate_left(16)
     }
     //swap 16 bit halfwords in a 64 bit word
-    pub fn hswap64(mut value: u64)->u64 {
-        let other_bitmask=0x0000ffff0000ffff;
+    pub fn halfword_swap_u64(mut value: u64)->u64 {
+        const OTHER_BITMASK=0x0000ffff0000ffff;
         value=value.rotate_left(32);
         return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
     }
     //swap 32 bit words in a 64 bit word
     #[inline(always)]
-    pub fn wswap64(value: u64)->u64 {
+    pub fn word_swap_u64(value: u64)->u64 {
         return value.rotate_left(32);
     }
     //extract a value from a 32 bit number

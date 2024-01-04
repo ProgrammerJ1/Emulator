@@ -3,7 +3,7 @@ use bitvec::view::BitView;
 use bitvec::{slice::BitSlice,order::Lsb0};
 use std::mem::size_of;
 use std::ops::Range;
-use std::sync::atomic::{AtomicU8,AtomicU16, Ordering};
+use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, Ordering};
 //Helper routines
 fn get_bit_slice<T,O>(data: &[T])->&BitSlice<u8,O>
 where O: BitOrder
@@ -385,12 +385,12 @@ impl BitOperations {
             *word=word.clone().rotate_left(n);
         }
     }
-    //rotate 16 bit value right
+    //rotate 16 bit value right, assumes rightmost bit is lowest value bit
     #[inline(always)]
     pub fn rotate_right_u16(word:u16,n:u32)->u16 {
         word.rotate_right(n)
     }
-    //rotate referenced 16 bit value right, assumes rightmost bit is highest value bit
+    //rotate referenced 16 bit value right, assumes rightmost bit is lowest value bit
     pub fn rotate_right_u16_direct(word:&mut u16,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU16::from_mut(word);
@@ -399,15 +399,33 @@ impl BitOperations {
             *word=word.clone().rotate_right(n);
         }
     }
-    //rotate 32 bit value left
+    //rotate 32 bit value left, assumes leftmost bit is highest value bit
     #[inline(always)]
     pub fn rotate_left_u32(word:u32,n:u32)->u32 {
         word.rotate_left(n)
+    }
+    //rotate referenced 32 bit value left, assumes leftmost bit is highest value bit
+    pub fn rotate_left_u32_direct(word:&mut u32,n:u32,atomic:bool) {
+        if atomic {
+            let atomic_value=AtomicU32::from_mut(word);
+            atomic_value.swap(word.clone().rotate_left(n),Ordering::SeqCst);
+        } else {
+            *word=word.clone().rotate_left(n);
+        }
     }
     //rotate 32 bit value right
     #[inline(always)]
     pub fn rotate_right_u32(word:u32,n:u32)->u32 {
         word.rotate_right(n)
+    }
+    //rotate referenced 32 bit value right, assumes rightmost bit is highest value bit
+    pub fn rotate_right_u32_direct(word:&mut u32,n:u32,atomic:bool) {
+        if atomic {
+            let atomic_value=AtomicU32::from_mut(word);
+            atomic_value.swap(word.clone().rotate_right(n),Ordering::SeqCst);
+        } else {
+            *word=word.clone().rotate_right(n);
+        }
     }
     //rotate 64 bit value left
     #[inline(always)]

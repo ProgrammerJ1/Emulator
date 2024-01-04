@@ -418,7 +418,7 @@ impl BitOperations {
     pub fn rotate_right_u32(word:u32,n:u32)->u32 {
         word.rotate_right(n)
     }
-    //rotate referenced 32 bit value right, assumes rightmost bit is highest value bit
+    //rotate referenced 32 bit value right, assumes rightmost bit is lowest value bit
     pub fn rotate_right_u32_direct(word:&mut u32,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU32::from_mut(word);

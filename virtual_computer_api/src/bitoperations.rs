@@ -1,6 +1,6 @@
 use bitvec::order::BitOrder;
 use bitvec::view::BitView;
-use bitvec::{slice::BitSlice,order::Lsb0};
+use bitvec::{slice::BitSlice,order::Lsb0,boxed::BitBox};
 use std::mem::size_of;
 use std::ops::Range;
 use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, AtomicU64, Ordering};
@@ -454,6 +454,26 @@ impl BitOperations {
         } else {
             *word=word.clone().rotate_left(n);
         }
+    }
+    //rotate a bitset left
+    pub fn rotate_left_bitset<T,O>(bits:&BitSlice<T,O>,n:usize)->BitBox<T,O> {
+        let mut copied_bitslice=BitBox::from_bitslice(bits);
+        copied_bitslice.rotate_left(n);
+        return bits;
+    }
+    //rotate a referenced bitset left directly
+    pub fn rotate_left_bitset_direct<T,O>(bits:&mut BitSlice<T,O>,n:usize) {
+        bits.rotate_left(n);
+    }
+    //rotate a bitset right
+    pub fn rotate_right_bitset<T,O>(bits:&BitSlice<T,O>,n:usize)->BitBox<T,O> {
+        let mut copied_bitslice=BitBox::from_bitslice(bits);
+        copied_bitslice.rotate_right(n);
+        return bits;
+    }
+    //rotate a referenced bitset right directly
+    pub fn rotate_right_bitset_direct<T,O>(bits:&mut BitSlice<T,O>,n:usize) {
+        bits.rotate_right(n);
     }
     //swap 16 bit halfwords in a 32 bit word
     #[inline(always)]

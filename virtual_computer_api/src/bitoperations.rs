@@ -482,7 +482,7 @@ impl BitOperations {
     }
     //swap 16 bit halfwords in a 64 bit word
     pub fn halfword_swap_u64(mut value: u64)->u64 {
-        const OTHER_BITMASK=0x0000ffff0000ffff;
+        const OTHER_BITMASK:u64=0x0000ffff0000ffff;
         value=value.rotate_left(32);
         return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
     }

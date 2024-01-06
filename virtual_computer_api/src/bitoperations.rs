@@ -484,7 +484,7 @@ impl BitOperations {
     pub fn halfword_swap_u64(mut value: u64)->u64 {
         const OTHER_BITMASK:u64=0x0000ffff0000ffff;
         value=value.rotate_left(32);
-        return ((value & other_bitmask) << 16) | ((value >> 16) & other_bitmask);
+        return ((value & OTHER_BITMASK) << 16) | ((value >> 16) & OTHER_BITMASK);
     }
     //swap 32 bit words in a 64 bit word
     #[inline(always)]
@@ -497,7 +497,7 @@ impl BitOperations {
         return (value>>start)&(2_u32.pow(length-1)&(2_u32.pow(length-1)-1))
     }
     //extract a value from a 8 bit number
-    pub fn extract_bits_of_u8(value:u8,start:u32,length:u32)->u8 {
+    pub fn extract_bits_of_u8<T,O>(value:u8,start:u32,length:u32)->u8 {
         assert!(length>0&&length<=8);
         return (value>>start)&(2_u8.pow(length-1)&(2_u8.pow(length-1)-1))
     }

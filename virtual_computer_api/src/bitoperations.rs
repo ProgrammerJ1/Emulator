@@ -1,4 +1,5 @@
 use bitvec::order::BitOrder;
+use bitvec::store::BitStore;
 use bitvec::view::BitView;
 use bitvec::{slice::BitSlice,boxed::BitBox};
 use std::ops::Range;
@@ -50,13 +51,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
-        assert!(data.len()-1>=nr);
-        if atomic {
-            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
-            value.fetch_or(bitmask,Ordering::SeqCst);
-        } else {
-            data.set(nr, true);
-        }
+        Self::set_bit_in_raw_bits(nr,data,atomic);
     }
     //set bits in raw bits slice
     pub fn set_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
@@ -75,13 +70,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
-        assert!(data.len()-1>=nr);
-        if atomic {
-            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
-            value.fetch_and(bitmask,Ordering::SeqCst);
-        } else {
-            data.set(nr, false);
-        }
+        Self::clear_bit_in_raw_bits(nr, data, atomic);
     }
     //clear bits in raw bits slice
     pub fn clear_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
@@ -100,14 +89,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut::<T,O>(data);
-        assert!(data.len()-1>=nr);
-        if atomic {
-            let (value,bitmask)=get_atomic_bit_control_values(data,nr);
-            value.fetch_xor(bitmask,Ordering::SeqCst);
-        } else {
-            let org_value=*data.get(nr).unwrap();
-            data.set(nr, !org_value);
-        }
+        Self::change_bit_in_raw_bits(nr, data, atomic);
     }
     //flip a bit in bits slice
     pub fn change_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)
@@ -127,8 +109,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &BitSlice<u8, O>=get_bit_slice(&data);
-        assert!(data.len()-1>=nr);
-        return *data.get(nr).unwrap()
+        Self::test_bit_in_raw_bits(nr, data)
     }
     //see if bit is set in raw bits
     pub fn test_bit_in_raw_bits<O>(nr: usize,data:&BitSlice<u8,O>)->bool 
@@ -142,10 +123,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
-        assert!(data.len()-1>=nr);
-        let status=*data.get(nr).unwrap();
-        Self::set_bit_in_raw_bits::<O>(nr, data, atomic);
-        return status;
+        Self::test_and_set_bit_in_raw_bits(nr,data,atomic)
     }
     //see if bit is set and set bit in raw bits
     pub fn test_and_set_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)->bool 
@@ -161,10 +139,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
-        assert!(data.len()-1>=nr);
-        let status=*data.get(nr).unwrap();
-        Self::clear_bit_in_raw_bits(nr, data, atomic);
-        return status;
+        Self::test_and_clear_bit_in_raw_bits(nr, data, atomic)
     }
     //see if bit is set and clear bit in raw bitset
     pub fn test_and_clear_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)->bool
@@ -180,10 +155,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
-        assert!(data.len()-1>=nr);
-        let status=*data.get(nr).unwrap();
-        Self::change_bit_in_raw_bits::<O>(nr, data, atomic);
-        return status;
+        Self::test_and_change_bit_in_raw_bits(nr, data, atomic)
     }
     
     //see if bit is set and change bit in raw bitset
@@ -196,19 +168,14 @@ impl BitOperations {
         return status;
     }
     //return last set bit in a memory range
-    pub fn find_last_bit<T,O>(data:&[T])->usize
+    pub fn find_last_set_bit<T,O>(data:&[T])->usize
     where O: BitOrder
     {
         let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
-        for nr in (0..bit_data.len()).rev() {
-            if *bit_data.get(nr).unwrap() {
-                return nr;
-            }
-        }
-        return data.len();
+        Self::find_last_set_bit_in_raw_bits(bit_data)
     }
     //return last set bit index in a memory range in raw bitset
-    pub fn find_last_bit_in_raw_bitset<O>(bit_data:&BitSlice<u8,O>)->usize
+    pub fn find_last_set_bit_in_raw_bits<O>(bit_data:&BitSlice<u8,O>)->usize
     where O: BitOrder
     {
         for nr in (0..bit_data.len()).rev() {
@@ -223,12 +190,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
-        for nr in (0..data.len()).rev() {
-            if !(*bit_data.get(nr).unwrap()) {
-                return nr;
-            }
-        }
-        return data.len(); 
+        Self::find_last_zero_bit_in_raw_bits(bit_data)
     }
     //return last cleared bit in a memory range in raw bitset
     pub fn find_last_zero_bit_in_raw_bits<O>(bit_data:&BitSlice<u8,O>)->usize
@@ -239,22 +201,14 @@ impl BitOperations {
                 return nr;
             }
         }
-        return bit_data.len(); 
+        return bit_data.len();
     }
     //find next set bit
     pub fn find_next_bit<T,O>(data: &[T],offset:usize)->usize
     where O: BitOrder
     {
-        let data:&BitSlice<u8,O>=get_bit_slice(data);
-        if offset>=data.len() {
-            return data.len();
-        }
-        for nr in offset..data.len() {
-            if *data.get(nr).unwrap() {
-                return nr;
-            }
-        }
-        return data.len() 
+        let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
+        Self::find_next_bit_in_raw_bits(bit_data,offset)
     }
     //find next set bit in raw bitset
     pub fn find_next_bit_in_raw_bits<O>(bit_data: &BitSlice<u8,O>,offset:usize)->usize
@@ -274,16 +228,8 @@ impl BitOperations {
     pub fn find_next_zero_bit<T,O>(data: &[T],offset:usize)->usize
     where O: BitOrder
     {
-        let data:&BitSlice<u8,O>=get_bit_slice(data);
-        if offset>=data.len() {
-            return data.len();
-        }
-        for nr in offset..data.len() {
-            if !(*data.get(nr).unwrap()) {
-                return nr;
-            }
-        }
-        return data.len() 
+        let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
+        Self::find_next_zero_bit_in_raw_bits(bit_data,offset)
     }
     //find next cleared bit in 
     pub fn find_next_zero_bit_in_raw_bits<O>(bit_data: &BitSlice<u8,O>,offset:usize)->usize
@@ -303,47 +249,37 @@ impl BitOperations {
     pub fn find_first_bit<T,O>(data:&[T])->usize
     where O: BitOrder
     {
-        let data: &BitSlice<u8,O>=get_bit_slice(data);
-        for nr in 0..data.len() {
-            if *data.get(nr).unwrap() {
-                return nr;
-            }
-        }
-        return data.len() 
+        let bit_data: &BitSlice<u8,O>=get_bit_slice(data);
+        Self::find_first_bit_in_raw_bits(bit_data)
     }
     //find first set bit in raw bitset
-    pub fn find_first_bit_in_raw_bits<T,O>(data:&BitSlice<u8,O>)->usize
+    pub fn find_first_bit_in_raw_bits<T,O>(bit_data:&BitSlice<u8,O>)->usize
     where O: BitOrder
     {
-        for nr in 0..data.len() {
-            if *data.get(nr).unwrap() {
+        for nr in 0..bit_data.len() {
+            if *bit_data.get(nr).unwrap() {
                 return nr;
             }
         }
-        return data.len() 
+        return bit_data.len() 
     }
     //find first cleared bit
     pub fn find_first_zero_bit<T,O>(data:&[T])->usize
     where O: BitOrder
     {
-        let data: &BitSlice<u8,O>=get_bit_slice(data);
-        for nr in 0..data.len() {
-            if !(*data.get(nr).unwrap()) {
-                return nr;
-            }
-        }
-        return data.len();
+        let bit_data: &BitSlice<u8,O>=get_bit_slice(data);
+        Self::find_first_zero_bit_in_raw_bits(bit_data)
     }
     //find first cleared bit in raw bitset
-    pub fn find_first_zero_bit_in_raw_bits<T,O>(data:&BitSlice<u8,O>)->usize
+    pub fn find_first_zero_bit_in_raw_bits<T,O>(bit_data:&BitSlice<u8,O>)->usize
     where O: BitOrder
     {
-        for nr in 0..data.len() {
-            if !(*data.get(nr).unwrap()) {
+        for nr in 0..bit_data.len() {
+            if !(*bit_data.get(nr).unwrap()) {
                 return nr;
             }
         }
-        return data.len();
+        return bit_data.len();
     }
     //rotate 8 bit value left, assumes leftmost bit is highest value bit
     #[inline(always)]
@@ -354,9 +290,9 @@ impl BitOperations {
     pub fn rotate_left_u8_direct(word:&mut u8,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU8::from_mut(word);
-            atomic_value.swap(word.clone().rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
         } else {
-            *word=word.clone().rotate_left(n);
+            *word=word.rotate_left(n);
         }
     }
     //rotate 8 bit value right, assumes rightmost bit is lowest value bit
@@ -368,9 +304,9 @@ impl BitOperations {
     pub fn rotate_right_u8_direct(word:&mut u8,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU8::from_mut(word);
-            atomic_value.swap(word.clone().rotate_right(n),Ordering::SeqCst);
+            atomic_value.swap(word.rotate_right(n),Ordering::SeqCst);
         } else {
-            *word=word.clone().rotate_right(n);
+            *word=word.rotate_right(n);
         }
     }
     //rotate 16 bit value left, assumes leftmost bit is highest value bit
@@ -382,9 +318,9 @@ impl BitOperations {
     pub fn rotate_left_u16_direct(word:&mut u16,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU16::from_mut(word);
-            atomic_value.swap(word.clone().rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
         } else {
-            *word=word.clone().rotate_left(n);
+            *word=word.rotate_left(n);
         }
     }
     //rotate 16 bit value right, assumes rightmost bit is lowest value bit
@@ -396,9 +332,9 @@ impl BitOperations {
     pub fn rotate_right_u16_direct(word:&mut u16,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU16::from_mut(word);
-            atomic_value.swap(word.clone().rotate_right(n),Ordering::SeqCst);
+            atomic_value.swap(word.rotate_right(n),Ordering::SeqCst);
         } else {
-            *word=word.clone().rotate_right(n);
+            *word=word.rotate_right(n);
         }
     }
     //rotate 32 bit value left, assumes leftmost bit is highest value bit
@@ -410,9 +346,9 @@ impl BitOperations {
     pub fn rotate_left_u32_direct(word:&mut u32,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU32::from_mut(word);
-            atomic_value.swap(word.clone().rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
         } else {
-            *word=word.clone().rotate_left(n);
+            *word=word.rotate_left(n);
         }
     }
     //rotate 32 bit value right
@@ -424,9 +360,9 @@ impl BitOperations {
     pub fn rotate_right_u32_direct(word:&mut u32,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU32::from_mut(word);
-            atomic_value.swap(word.clone().rotate_right(n),Ordering::SeqCst);
+            atomic_value.swap(word.rotate_right(n),Ordering::SeqCst);
         } else {
-            *word=word.clone().rotate_right(n);
+            *word=word.rotate_right(n);
         }
     }
     //rotate 64 bit value left
@@ -438,9 +374,9 @@ impl BitOperations {
     pub fn rotate_left_u64_direct(word:&mut u64,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU64::from_mut(word);
-            atomic_value.swap(word.clone().rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
         } else {
-            *word=word.clone().rotate_left(n);
+            *word=word.rotate_left(n);
         }
     }
     //rotate 64 bit value right
@@ -452,29 +388,45 @@ impl BitOperations {
     pub fn rotate_right_u64_direct(word:&mut u64,n:u32,atomic:bool) {
         if atomic {
             let atomic_value=AtomicU64::from_mut(word);
-            atomic_value.swap(word.clone().rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
         } else {
-            *word=word.clone().rotate_left(n);
+            *word=word.rotate_left(n);
         }
     }
     //rotate a bitset left
-    pub fn rotate_left_bitset<T,O>(bits:&BitSlice<T,O>,n:usize)->BitBox<T,O> {
+    pub fn rotate_left_bitset<T,O>(bits:&BitSlice<T,O>,n:usize)->BitBox<T,O>
+    where
+    T: BitStore,
+    O: BitOrder
+    {
         let mut copied_bitslice=BitBox::from_bitslice(bits);
         copied_bitslice.rotate_left(n);
-        return bits;
+        return copied_bitslice;
     }
     //rotate a referenced bitset left directly
-    pub fn rotate_left_bitset_direct<T,O>(bits:&mut BitSlice<T,O>,n:usize) {
+    pub fn rotate_left_bitset_direct<T,O>(bits:&mut BitSlice<T,O>,n:usize)
+    where
+    T: BitStore,
+    O: BitOrder
+    {
         bits.rotate_left(n);
     }
     //rotate a bitset right
-    pub fn rotate_right_bitset<T,O>(bits:&BitSlice<T,O>,n:usize)->BitBox<T,O> {
+    pub fn rotate_right_bitset<T,O>(bits:&BitSlice<T,O>,n:usize)->BitBox<T,O>
+    where
+    T: BitStore,
+    O: BitOrder
+    {
         let mut copied_bitslice=BitBox::from_bitslice(bits);
         copied_bitslice.rotate_right(n);
-        return bits;
+        return copied_bitslice;
     }
     //rotate a referenced bitset right directly
-    pub fn rotate_right_bitset_direct<T,O>(bits:&mut BitSlice<T,O>,n:usize) {
+    pub fn rotate_right_bitset_direct<T,O>(bits:&mut BitSlice<T,O>,n:usize)
+    where
+    T: BitStore,
+    O: BitOrder
+    {
         bits.rotate_right(n);
     }
     //swap 16 bit halfwords in a 32 bit word

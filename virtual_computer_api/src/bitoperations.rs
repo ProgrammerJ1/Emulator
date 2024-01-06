@@ -4,6 +4,7 @@ use bitvec::{slice::BitSlice,boxed::BitBox};
 use std::ops::Range;
 use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, AtomicU64, Ordering};
 //Helper routines
+//Get the bit slice from the a slice of a certain type in a certain order
 fn get_bit_slice<T,O>(data: &[T])->&BitSlice<u8,O>
 where O: BitOrder
 {
@@ -17,6 +18,7 @@ where O: BitOrder
     }
     return ptr_slice.view_bits::<O>();
 }
+//Get the mutable bit slice from the a slice of a certain type in a certain order
 fn get_bit_slice_mut<T,O>(data: &mut [T])->&mut BitSlice<u8,O>
 where O: BitOrder
 {
@@ -30,6 +32,7 @@ where O: BitOrder
     }
     return ptr_slice.view_bits_mut::<O>();
 }
+//Get the values that help control the bits in an atomic operation
 fn get_atomic_bit_control_values<'r,O>(bits:&mut BitSlice<u8,O>,nr: usize)->(&'r AtomicU8,u8)
 where O: BitOrder
 {

@@ -1,7 +1,6 @@
 use bitvec::order::BitOrder;
 use bitvec::view::BitView;
-use bitvec::{slice::BitSlice,order::Lsb0,boxed::BitBox};
-use std::mem::size_of;
+use bitvec::{slice::BitSlice,boxed::BitBox};
 use std::ops::Range;
 use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, AtomicU64, Ordering};
 //Helper routines

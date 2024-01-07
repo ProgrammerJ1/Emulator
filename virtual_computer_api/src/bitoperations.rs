@@ -3,6 +3,7 @@ use bitvec::store::BitStore;
 use bitvec::view::BitView;
 use bitvec::{slice::BitSlice,boxed::BitBox};
 use std::ops::Range;
+use std::mem::size_of;
 use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, AtomicU64, Ordering};
 //Helper routines
 //Get the bit slice from the a slice of a certain type in a certain order
@@ -204,14 +205,14 @@ impl BitOperations {
         return bit_data.len();
     }
     //find next set bit
-    pub fn find_next_bit<T,O>(data: &[T],offset:usize)->usize
+    pub fn find_next_set_bit<T,O>(data: &[T],offset:usize)->usize
     where O: BitOrder
     {
         let bit_data:&BitSlice<u8,O>=get_bit_slice(data);
-        Self::find_next_bit_in_raw_bits(bit_data,offset)
+        Self::find_next_set_bit_in_raw_bits(bit_data,offset)
     }
     //find next set bit in raw bitset
-    pub fn find_next_bit_in_raw_bits<O>(bit_data: &BitSlice<u8,O>,offset:usize)->usize
+    pub fn find_next_set_bit_in_raw_bits<O>(bit_data: &BitSlice<u8,O>,offset:usize)->usize
     where O: BitOrder
     {
         if offset>=bit_data.len() {
@@ -246,14 +247,14 @@ impl BitOperations {
         return bit_data.len() 
     }
     //find first set bit
-    pub fn find_first_bit<T,O>(data:&[T])->usize
+    pub fn find_first_set_bit<T,O>(data:&[T])->usize
     where O: BitOrder
     {
         let bit_data: &BitSlice<u8,O>=get_bit_slice(data);
-        Self::find_first_bit_in_raw_bits(bit_data)
+        Self::find_first_set_bit_in_raw_bits::<T,O>(bit_data)
     }
     //find first set bit in raw bitset
-    pub fn find_first_bit_in_raw_bits<T,O>(bit_data:&BitSlice<u8,O>)->usize
+    pub fn find_first_set_bit_in_raw_bits<T,O>(bit_data:&BitSlice<u8,O>)->usize
     where O: BitOrder
     {
         for nr in 0..bit_data.len() {
@@ -268,7 +269,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let bit_data: &BitSlice<u8,O>=get_bit_slice(data);
-        Self::find_first_zero_bit_in_raw_bits(bit_data)
+        Self::find_first_zero_bit_in_raw_bits::<T,O>(bit_data)
     }
     //find first cleared bit in raw bitset
     pub fn find_first_zero_bit_in_raw_bits<T,O>(bit_data:&BitSlice<u8,O>)->usize
@@ -289,8 +290,9 @@ impl BitOperations {
     //rotate referenced 8 bit value left, assumes leftmost bit is highest value bit
     pub fn rotate_left_u8_direct(word:&mut u8,n:u32,atomic:bool) {
         if atomic {
+            let value=word.clone();
             let atomic_value=AtomicU8::from_mut(word);
-            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(value.rotate_left(n),Ordering::SeqCst);
         } else {
             *word=word.rotate_left(n);
         }
@@ -303,8 +305,9 @@ impl BitOperations {
     //rotate referenced 8 bit value right, assumes rightmost bit is lowest value bit
     pub fn rotate_right_u8_direct(word:&mut u8,n:u32,atomic:bool) {
         if atomic {
+            let value=word.clone();
             let atomic_value=AtomicU8::from_mut(word);
-            atomic_value.swap(word.rotate_right(n),Ordering::SeqCst);
+            atomic_value.swap(value.rotate_right(n),Ordering::SeqCst);
         } else {
             *word=word.rotate_right(n);
         }
@@ -317,8 +320,9 @@ impl BitOperations {
     //rotate referenced 16 bit value left, assumes leftmost bit is highest value bit
     pub fn rotate_left_u16_direct(word:&mut u16,n:u32,atomic:bool) {
         if atomic {
+            let value=word.clone();
             let atomic_value=AtomicU16::from_mut(word);
-            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(value.rotate_left(n),Ordering::SeqCst);
         } else {
             *word=word.rotate_left(n);
         }
@@ -331,8 +335,9 @@ impl BitOperations {
     //rotate referenced 16 bit value right, assumes rightmost bit is lowest value bit
     pub fn rotate_right_u16_direct(word:&mut u16,n:u32,atomic:bool) {
         if atomic {
+            let value=word.clone();
             let atomic_value=AtomicU16::from_mut(word);
-            atomic_value.swap(word.rotate_right(n),Ordering::SeqCst);
+            atomic_value.swap(value.rotate_right(n),Ordering::SeqCst);
         } else {
             *word=word.rotate_right(n);
         }
@@ -345,8 +350,9 @@ impl BitOperations {
     //rotate referenced 32 bit value left, assumes leftmost bit is highest value bit
     pub fn rotate_left_u32_direct(word:&mut u32,n:u32,atomic:bool) {
         if atomic {
+            let value=word.clone();
             let atomic_value=AtomicU32::from_mut(word);
-            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(value.rotate_left(n),Ordering::SeqCst);
         } else {
             *word=word.rotate_left(n);
         }
@@ -359,8 +365,9 @@ impl BitOperations {
     //rotate referenced 32 bit value right, assumes rightmost bit is lowest value bit
     pub fn rotate_right_u32_direct(word:&mut u32,n:u32,atomic:bool) {
         if atomic {
+            let value=word.clone();
             let atomic_value=AtomicU32::from_mut(word);
-            atomic_value.swap(word.rotate_right(n),Ordering::SeqCst);
+            atomic_value.swap(value.rotate_right(n),Ordering::SeqCst);
         } else {
             *word=word.rotate_right(n);
         }
@@ -373,8 +380,9 @@ impl BitOperations {
     //rotate referenced 64 bit value left, assumes leftmost bit is highest value bit
     pub fn rotate_left_u64_direct(word:&mut u64,n:u32,atomic:bool) {
         if atomic {
+            let value=word.clone();
             let atomic_value=AtomicU64::from_mut(word);
-            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(value.rotate_left(n),Ordering::SeqCst);
         } else {
             *word=word.rotate_left(n);
         }
@@ -387,8 +395,9 @@ impl BitOperations {
     //rotate referenced 64 bit value right, assumes rightmost bit is lowest value bit
     pub fn rotate_right_u64_direct(word:&mut u64,n:u32,atomic:bool) {
         if atomic {
+            let value=word.clone();
             let atomic_value=AtomicU64::from_mut(word);
-            atomic_value.swap(word.rotate_left(n),Ordering::SeqCst);
+            atomic_value.swap(value.rotate_right(n),Ordering::SeqCst);
         } else {
             *word=word.rotate_left(n);
         }
@@ -445,29 +454,27 @@ impl BitOperations {
     pub fn word_swap_u64(value: u64)->u64 {
         return value.rotate_left(32);
     }
-    //extract a value from a 32 bit number
-    pub fn extract_bits_of_u32(value:u32,start:u32,length:u32)->u32 {
-        assert!(length>0&&length<=32);
-        return (value>>start)&(2_u32.pow(length-1)&(2_u32.pow(length-1)-1))
+    //Extract bits from a single value
+    pub fn extract_bits<T,O>(value: T,start:usize,length:usize)->BitBox<u8,O>
+    where O: BitOrder
+    {
+        assert!(length<=size_of::<T>()<<3&&start<length);
+        Self::extract_bits_of_bitset_unchecked::<T,O>(get_bit_slice::<T,O>(&[value]),start,length)
     }
-    //extract a value from a 8 bit number
-    pub fn extract_bits_of_u8<T,O>(value:u8,start:u32,length:u32)->u8 {
-        assert!(length>0&&length<=8);
-        return (value>>start)&(2_u8.pow(length-1)&(2_u8.pow(length-1)-1))
+    //Extract bits from a bitset.
+    pub fn extract_bits_of_bitset<T,O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
+    where O: BitOrder
+    {
+        assert!(length<=bits.len()&&start<length);
+        Self::extract_bits_of_bitset_unchecked::<T,O>(bits,start,length)
     }
-    //extract a value from a 16 bit number
-    pub fn extract_bits_of_u16(value:u16,start:u32,length:u32)->u16 {
-        assert!(length>0&&length<=16);
-        return (value>>start)&(2_u16.pow(length-1)&(2_u16.pow(length-1)-1))
+    fn extract_bits_of_bitset_unchecked<T,O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
+    where O: BitOrder
+    {
+        let specific_bit_slice=&bits[start..length];
+        BitBox::from_bitslice(specific_bit_slice)
     }
-    //extract a value from a 64 bit number
-    pub fn extract_bits_of_u64(value:u64,start:u32,length:u32)->u64 {
-        assert!(length>0&&length<=64);
-        return (value>>start)&(2_u64.pow(length-1)&(2_u64.pow(length-1)-1));
-    }
-    pub fn extract_bits_of_bitset<T,O>(value:u64)
-    //extract a signed extended value from a 32 bit number
-    pub fn sextract32(value:u32,start:u32,length:u32)->i32 {
+    /*pub fn sextract32(value:u32,start:u32,length:u32)->i32 {
         assert!(length>0&&length<=32);
         return ((value<<(32-length-start))>>(32-length)).try_into().unwrap()
     }
@@ -485,7 +492,7 @@ impl BitOperations {
     pub fn sextract64(value:u64,start:u32,length:u32)->i64 {
         assert!(length>0&&length<=64);
         return ((value<<(64-length-start))>>(64-length)).try_into().unwrap()
-    }
+    }*/
     //deposit bits of a 32 bit value into another.
     pub fn deposit32(mut value:u32,start:u32,length:u32,field_value:u32)->u32 {
         assert!(length>0&&length<=32);

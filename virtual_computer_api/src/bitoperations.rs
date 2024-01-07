@@ -458,14 +458,22 @@ impl BitOperations {
     pub fn extract_bits<T,O>(value: T,start:usize,length:usize)->BitBox<u8,O>
     where O: BitOrder
     {
-        assert!(length<=size_of::<T>()<<3&&start<length);
+        assert!(length<=(size_of::<T>()<<3)-start);
         Self::extract_bits_of_bitset_unchecked::<T,O>(get_bit_slice::<T,O>(&[value]),start,length)
+    }
+    //Extract bits from a single value
+    pub fn extract_bits_from_slice<T,O>(value: &[T],start:usize,length:usize)->BitBox<u8,O>
+    where O: BitOrder
+    {
+        assert!(length<((size_of::<T>()<<3)*value.len())-start);
+        let bit_slice=get_bit_slice::<T,O>(value);
+        Self::extract_bits_of_bitset_unchecked::<T,O>(bit_slice,start,length)
     }
     //Extract bits from a bitset.
     pub fn extract_bits_of_bitset<T,O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
     where O: BitOrder
     {
-        assert!(length<=bits.len()&&start<length);
+        assert!(length<=bits.len()-start);
         Self::extract_bits_of_bitset_unchecked::<T,O>(bits,start,length)
     }
     //Unchecked version of bit extraction

@@ -468,6 +468,7 @@ impl BitOperations {
         assert!(length<=bits.len()&&start<length);
         Self::extract_bits_of_bitset_unchecked::<T,O>(bits,start,length)
     }
+    //Unchecked version of bit extraction
     fn extract_bits_of_bitset_unchecked<T,O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
     where O: BitOrder
     {
@@ -493,47 +494,8 @@ impl BitOperations {
         assert!(length>0&&length<=64);
         return ((value<<(64-length-start))>>(64-length)).try_into().unwrap()
     }*/
-    //deposit bits of a 32 bit value into another.
-    pub fn deposit32(mut value:u32,start:u32,length:u32,field_value:u32)->u32 {
-        assert!(length>0&&length<=32);
-        {
-            let other_bitmask=(u32::MAX>>(32-length))<<start;
-            value&=!other_bitmask;
-            value|=field_value&other_bitmask;
-        }
-        return value;
-    }
-    //deposit bits of a 64 bit value into another.
-    pub fn deposit64(mut value:u64,start:u32,length:u32,field_value:u64)->u64 {
-        assert!(length>0&&length<=64);
-        {
-            let other_bitmask=(u64::MAX>>(64-length))<<start;
-            value&=!other_bitmask;
-            value|=field_value&other_bitmask;
-        }
-        return value;
-    }
-    
-    //deposit bits of a 16 bit value into another.
-    pub fn deposit16(mut value:u16,start:u32,length:u32,field_value:u16)->u16 {
-        assert!(length>0&&length<=16);
-        {
-            let other_bitmask=(u16::MAX>>(16-length))<<start;
-            value&=!other_bitmask;
-            value|=field_value&other_bitmask;
-        }
-        return value;
-    }
-    //deposit bits of a 8 bit value into another.
-    pub fn deposit8(mut value:u8,start:u32,length:u32,field_value:u8)->u8 {
-        assert!(length>0&&length<=8);
-        {
-            let other_bitmask=(u8::MAX>>(8-length))<<start;
-            value&=!other_bitmask;
-            value|=field_value&other_bitmask;
-        }
-        return value;
-    }
+    //deposit bits of one value into another
+    //pub fn deposit_bits<T,O>()
     //return the value where the lower half is spread out into the odd bits in the word, and the even bits are zeroed (not by 0 based index)
     pub fn half_shuffle32(mut value:u32)->u32 {
         value = ((value & 0xFF00) << 8) | (value & 0x00FF);

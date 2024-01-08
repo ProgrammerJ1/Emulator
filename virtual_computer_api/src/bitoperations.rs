@@ -472,14 +472,14 @@ impl BitOperations {
         Self::extract_bits_of_bitset_unchecked::<T,O>(bit_slice,start,length)
     }
     //Extract bits from a bitset.
-    pub fn extract_bits_of_bitset<T,O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
+    pub fn extract_bits_of_bitset<O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
     where O: BitOrder
     {
         assert!(bits.len()>start&&length<=bits.len()-start);
         Self::extract_bits_of_bitset_unchecked::<T,O>(bits,start,length)
     }
     //Unchecked version of bit extraction
-    fn extract_bits_of_bitset_unchecked<T,O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
+    fn extract_bits_of_bitset_unchecked<O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
     where O: BitOrder
     {
         let specific_bit_slice=&bits[start..length];
@@ -505,7 +505,7 @@ impl BitOperations {
         return ((value<<(64-length-start))>>(64-length)).try_into().unwrap()
     }*/
     //deposit bits of one owned bitset into another
-    pub fn deposit_bits_of_bitset<T,O>(value:&T,start:usize,bits:BitBox<u8,O>)
+    fn deposit_bits_of_bitset_unchecked<O>(value:&mut BitSlice<u8,O>,start:usize,bits:BitBox<u8,O>)
     where O: BitOrder
     {
         //

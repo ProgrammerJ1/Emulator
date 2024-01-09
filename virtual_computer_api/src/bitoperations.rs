@@ -58,7 +58,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u32, O>=get_bit_slice_mut::<T,u32,O>(data);
-        Self::set_bit_in_raw_bits<u32,O>(nr,data,atomic);
+        Self::set_bit_in_raw_bits::<u32,O>(nr,data,atomic);
     }
     //set bits in raw bits slice
     pub fn set_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)
@@ -79,7 +79,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u32, O>=get_bit_slice_mut::<T,u32,O>(data);
-        Self::clear_bit_in_raw_bits<u32,O>(nr, data, atomic);
+        Self::clear_bit_in_raw_bits::<u32,O>(nr, data, atomic);
     }
     //clear bits in raw bits slice
     pub fn clear_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)
@@ -100,7 +100,7 @@ impl BitOperations {
     where O: BitOrder
     {
         let data: &mut BitSlice<u32, O>=get_bit_slice_mut::<T,u32,O>(data);
-        Self::change_bit_in_raw_bits(nr, data, atomic);
+        Self::change_bit_in_raw_bits::<u32,O>(nr, data, atomic);
     }
     //flip a bit in bits slice
     pub fn change_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)
@@ -121,12 +121,14 @@ impl BitOperations {
     pub fn test_bit<T,O>(nr: usize,data:&[T])->bool 
     where O: BitOrder
     {
-        let data: &BitSlice<u8, O>=get_bit_slice(&data);
-        Self::test_bit_in_raw_bits(nr, data)
+        let data: &BitSlice<u32, O>=get_bit_slice::<T,u32,O>(&data);
+        Self::test_bit_in_raw_bits::<u32,O>(nr, data)
     }
     //see if bit is set in raw bits
-    pub fn test_bit_in_raw_bits<O>(nr: usize,data:&BitSlice<u8,O>)->bool 
-    where O: BitOrder
+    pub fn test_bit_in_raw_bits<BT,O>(nr: usize,data:&BitSlice<BT,O>)->bool 
+    where
+        BT: BitStore,
+        O: BitOrder
     {
         assert!(data.len()-1>=nr);
         return *data.get(nr).unwrap()
@@ -135,49 +137,55 @@ impl BitOperations {
     pub fn test_and_set_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)->bool 
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
-        Self::test_and_set_bit_in_raw_bits(nr,data,atomic)
+        let data: &mut BitSlice<u32, O>=get_bit_slice_mut::<T,u32,O>(data);
+        Self::test_and_set_bit_in_raw_bits::<u32,O>(nr,data,atomic)
     }
     //see if bit is set and set bit in raw bits
-    pub fn test_and_set_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)->bool 
-    where O: BitOrder
+    pub fn test_and_set_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)->bool 
+    where
+        BT: BitStore,
+        O: BitOrder
     {
         assert!(data.len()-1>=nr);
         let status=*data.get(nr).unwrap();
-        Self::set_bit_in_raw_bits::<O>(nr, data, atomic);
+        Self::set_bit_in_raw_bits::<BT,O>(nr, data, atomic);
         return status;
     }
     //see if bit is set and clear bit
     pub fn test_and_clear_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)->bool
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
+        let data: &mut BitSlice<u32, O>=get_bit_slice_mut(data);
         Self::test_and_clear_bit_in_raw_bits(nr, data, atomic)
     }
     //see if bit is set and clear bit in raw bitset
-    pub fn test_and_clear_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)->bool
-    where O: BitOrder
+    pub fn test_and_clear_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)->bool
+    where
+        BT: BitStore,
+        O: BitOrder
     {
         assert!(data.len()-1>=nr);
         let status=*data.get(nr).unwrap();
-        Self::clear_bit_in_raw_bits::<O>(nr, data, atomic);
+        Self::clear_bit_in_raw_bits::<BT,O>(nr, data, atomic);
         return status;
     }
     //see if bit is set and change bit
     pub fn test_and_change_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)->bool
     where O: BitOrder
     {
-        let data: &mut BitSlice<u8, O>=get_bit_slice_mut(data);
+        let data: &mut BitSlice<u32, O>=get_bit_slice_mut(data);
         Self::test_and_change_bit_in_raw_bits(nr, data, atomic)
     }
     
     //see if bit is set and change bit in raw bitset
-    pub fn test_and_change_bit_in_raw_bits<O>(nr: usize,data:&mut BitSlice<u8,O>,atomic:bool)->bool
-    where O: BitOrder
+    pub fn test_and_change_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)->bool
+    where
+        BT: BitStore
+        O: BitOrder
     {
         assert!(data.len()-1>=nr);
         let status=*data.get(nr).unwrap();
-        Self::change_bit_in_raw_bits::<O>(nr, data, atomic);
+        Self::change_bit_in_raw_bits::<BT,O>(nr, data, atomic);
         return status;
     }
     //return last set bit in a memory range

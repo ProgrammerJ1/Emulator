@@ -7,22 +7,26 @@ use std::mem::size_of;
 use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, AtomicU64, Ordering};
 //Helper routines
 //Get the bit slice from the a slice of a certain type in a certain order
-fn get_bit_slice<T,O>(data: &[T])->&BitSlice<u8,O>
-where O: BitOrder
+fn get_bit_slice<T,BT,O>(data: &[T])->&BitSlice<BT,O>
+where
+    BT: BitStore
+    O: BitOrder
 {
     let ptr_slice: &[u8];
     unsafe {
         let raw_ptr_range: Range<*const T>=data.as_ptr_range();
-        let start: *const u8=raw_ptr_range.start.cast();
-        let real_end: *const u8=raw_ptr_range.end.sub(1).cast();
-        let end: *const u8=real_end.add(1);
+        let start: *const BT=raw_ptr_range.start.cast();
+        let real_end: *const BT=raw_ptr_range.end.sub(1).cast();
+        let end: *const BT=real_end.add(1);
         ptr_slice=std::slice::from_ptr_range(start..end);
     }
     return ptr_slice.view_bits::<O>();
 }
 //Get the mutable bit slice from the a slice of a certain type in a certain order
-fn get_bit_slice_mut<T,O>(data: &mut [T])->&mut BitSlice<u8,O>
-where O: BitOrder
+fn get_bit_slice_mut<T,BT,O>(data: &mut [T])->&mut BitSlice<BT,O>
+where
+    BT: BitStore
+    O: BitOrder
 {
     let ptr_slice: &mut [u8];
     unsafe {
@@ -35,8 +39,10 @@ where O: BitOrder
     return ptr_slice.view_bits_mut::<O>();
 }
 //Get the values that help control the bits in an atomic operation
-fn get_atomic_bit_control_values<'r,O>(bits:&mut BitSlice<u8,O>,nr: usize)->(&'r AtomicU8,u8)
-where O: BitOrder
+fn get_atomic_bit_control_values<'r,BT,O>(bits:&mut BitSlice<BT,O>,nr: usize)->(&'r AtomicU8,u8)
+where
+    BT: BitStore,
+    O: BitOrder
 {
     let bit_ptr=unsafe{bits.as_mut_bitptr().add(nr)}.raw_parts();
     let address=bit_ptr.0.to_mut();

@@ -12,7 +12,7 @@ where
     BT: BitStore,
     O: BitOrder
 {
-    let ptr_slice: &[u8];
+    let ptr_slice: &[BT];
     unsafe {
         let raw_ptr_range: Range<*const T>=data.as_ptr_range();
         let start: *const BT=raw_ptr_range.start.cast();
@@ -28,26 +28,26 @@ where
     BT: BitStore,
     O: BitOrder
 {
-    let ptr_slice: &mut [u8];
+    let ptr_slice: &mut [BT];
     unsafe {
         let raw_ptr_range: Range<*mut T>=data.as_mut_ptr_range();
-        let start: *mut u8=raw_ptr_range.start.cast();
-        let real_end: *mut u8=raw_ptr_range.end.sub(1).cast();
-        let end: *mut u8=real_end.add(1);
+        let start: *mut BT=raw_ptr_range.start.cast();
+        let real_end: *mut BT=raw_ptr_range.end.sub(1).cast();
+        let end: *mut BT=real_end.add(1);
         ptr_slice=std::slice::from_mut_ptr_range(start..end);
     }
     return ptr_slice.view_bits_mut::<O>();
 }
 //Get the values that help control the bits in an atomic operation
-fn get_atomic_bit_control_values<'r,BT,O>(bits:&mut BitSlice<BT,O>,nr: usize)->(&'r AtomicU8,u8)
+fn get_atomic_bit_control_values<'r,BT,O>(bits:&mut BitSlice<BT,O>,nr: usize)->(&'r AtomicU32,u32)
 where
     BT: BitStore,
     O: BitOrder
 {
-    let bit_ptr=unsafe{bits.as_mut_bitptr().add(nr)}.raw_parts();
+    let bit_ptr=unsafe{bits.as_mut_bitptr().add(nr)}.cast::<u32>().raw_parts();
     let address=bit_ptr.0.to_mut();
     let bitmask=!(bit_ptr.1.select::<O>().into_inner());
-    let value=unsafe{AtomicU8::from_ptr(address)};
+    let value=unsafe{AtomicU32::from_ptr(address)};
     return (value,bitmask)
 }
 //Structure holding these operations, bit operations inspired (stolen from) by qemu
@@ -180,7 +180,7 @@ impl BitOperations {
     //see if bit is set and change bit in raw bitset
     pub fn test_and_change_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)->bool
     where
-        BT: BitStore
+        BT: BitStore,
         O: BitOrder
     {
         assert!(data.len()-1>=nr);
@@ -475,32 +475,40 @@ impl BitOperations {
         return value.rotate_left(32);
     }
     //Extract bits from a single value
-    pub fn extract_bits<T,O>(value: &T,start:usize,length:usize)->BitBox<u8,O>
-    where O: BitOrder
+    pub fn extract_bits<T,BT,O>(value: &T,start:usize,length:usize)->BitBox<BT,O>
+    where
+        BT: BitStore,
+        O: BitOrder
     {
         let type_size=size_of::<T>()<<3;
         assert!(type_size>start&&length<=type_size-start);
-        Self::extract_bits_of_bitset_unchecked::<T,O>(get_bit_slice::<T,O>(std::slice::from_ref(value)),start,length)
+        Self::extract_bits_of_bitset_unchecked::<BT,O>(get_bit_slice::<T,BT,O>(std::slice::from_ref(value)),start,length)
     }
     //Extract bits from a single value
-    pub fn extract_bits_from_slice<T,O>(value: &[T],start:usize,length:usize)->BitBox<u8,O>
-    where O: BitOrder
+    pub fn extract_bits_from_slice<T,BT,O>(value: &[T],start:usize,length:usize)->BitBox<BT,O>
+    where
+        BT: BitStore,
+        O: BitOrder
     {
         let array_size=(size_of::<T>()<<3)*value.len();
         assert!(array_size>start&&length<=array_size-start);
-        let bit_slice=get_bit_slice::<T,O>(value);
-        Self::extract_bits_of_bitset_unchecked::<T,O>(bit_slice,start,length)
+        let bit_slice=get_bit_slice::<T,BT,O>(value);
+        Self::extract_bits_of_bitset_unchecked::<BT,O>(bit_slice,start,length)
     }
     //Extract bits from a bitset.
-    pub fn extract_bits_of_bitset<O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
-    where O: BitOrder
+    pub fn extract_bits_of_bitset<BT,O>(bits:&BitSlice<BT,O>,start:usize,length:usize)->BitBox<BT,O>
+    where
+    BT: BitStore,
+    O: BitOrder
     {
         assert!(bits.len()>start&&length<=bits.len()-start);
-        Self::extract_bits_of_bitset_unchecked::<T,O>(bits,start,length)
+        Self::extract_bits_of_bitset_unchecked::<BT,O>(bits,start,length)
     }
     //Unchecked version of bit extraction
-    fn extract_bits_of_bitset_unchecked<O>(bits:&BitSlice<u8,O>,start:usize,length:usize)->BitBox<u8,O>
-    where O: BitOrder
+    fn extract_bits_of_bitset_unchecked<BT,O>(bits:&BitSlice<BT,O>,start:usize,length:usize)->BitBox<BT,O>
+    where
+        BT: BitStore,
+        O: BitOrder
     {
         let specific_bit_slice=&bits[start..length];
         BitBox::from_bitslice(specific_bit_slice)

@@ -505,25 +505,6 @@ impl BitOperations {
         let specific_bit_slice=&bits[start..length];
         BitBox::from_bitslice(specific_bit_slice)
     }
-    /*pub fn sextract32(value:u32,start:u32,length:u32)->i32 {
-        assert!(length>0&&length<=32);
-        return ((value<<(32-length-start))>>(32-length)).try_into().unwrap()
-    }
-    //extract a signed extended value from a 8 bit number
-    pub fn sextract8(value:u8,start:u32,length:u32)->i8 {
-        assert!(length>0&&length<=8);
-        return ((value<<(8-length-start))>>(8-length)).try_into().unwrap()
-    }
-    //extract a signed extended value from a 16 bit number
-    pub fn sextract16(value:u16,start:u32,length:u32)->i16 {
-        assert!(length>0&&length<=16);
-        return ((value<<(16-length-start))>>(16-length)).try_into().unwrap()
-    }
-    //extract a signed extended value from a 64 bit number
-    pub fn sextract64(value:u64,start:u32,length:u32)->i64 {
-        assert!(length>0&&length<=64);
-        return ((value<<(64-length-start))>>(64-length)).try_into().unwrap()
-    }*/
     //deposit bits of one owned bitset into another
     fn deposit_bits_of_bitset_unchecked<O>(value:&mut BitSlice<u8,O>,start:usize,bits:BitBox<u8,O>)
     where O: BitOrder

@@ -474,24 +474,16 @@ impl BitOperations {
     pub fn word_swap_u64(value: u64)->u64 {
         return value.rotate_left(32);
     }
-    //Extract bits from a single value
-    pub fn extract_bits<T,BT,O>(value: &T,start:usize,length:usize)->BitBox<BT,O>
-    where
-        BT: BitStore,
-        O: BitOrder
-    {
-        let type_size=size_of::<T>()<<3;
-        assert!(type_size>start&&length<=type_size-start);
-        Self::extract_bits_of_bitset_unchecked::<BT,O>(get_bit_slice::<T,BT,O>(std::slice::from_ref(value)),start,length)
-    }
-    //Extract bits from a single value
+    //Extract bits from a memory region
     pub fn extract_bits_from_slice<T,BT,O>(value: &[T],start:usize,length:usize)->BitBox<BT,O>
     where
         BT: BitStore,
         O: BitOrder
     {
-        let array_size=(size_of::<T>()<<3)*value.len();
-        assert!(array_size>start&&length<=array_size-start);
+        {
+            let array_size=(size_of::<T>()<<3)*value.len();
+            assert!(array_size>start&&length<=array_size-start);
+        }
         let bit_slice=get_bit_slice::<T,BT,O>(value);
         Self::extract_bits_of_bitset_unchecked::<BT,O>(bit_slice,start,length)
     }

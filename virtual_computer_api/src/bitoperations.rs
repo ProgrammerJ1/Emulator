@@ -506,10 +506,13 @@ impl BitOperations {
         BitBox::from_bitslice(specific_bit_slice)
     }
     //deposit bits of one owned bitset into another
-    fn deposit_bits_of_bitset_unchecked<O>(value:&mut BitSlice<u8,O>,start:usize,bits:BitBox<u8,O>)
-    where O: BitOrder
+    fn deposit_bits_of_bitset_unchecked<BT,O>(value:&mut BitSlice<BT,O>,start:usize,bits:BitBox<BT,O>)
+    where
+        BT: BitStore,
+        O: BitOrder
     {
-        //
+        let true_bitslice: &mut BitSlice<BT,O>=value[start..start+bits.len()];
+        true_bitslice.copy_from_bitslice(bits.as_bitslice());
     }
     //return the value where the lower half is spread out into the odd bits in the word, and the even bits are zeroed (not by 0 based index)
     pub fn half_shuffle32(mut value:u32)->u32 {

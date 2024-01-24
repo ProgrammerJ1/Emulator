@@ -506,7 +506,16 @@ impl BitOperations {
         BitBox::from_bitslice(specific_bit_slice)
     }
     //deposit bits of one owned bitset into another
-    fn deposit_bits_of_bitset_unchecked<BT,O>(value:&mut BitSlice<BT,O>,start:usize,bits:BitBox<BT,O>)
+    pub fn deposit_bits_of_bitset<BT,O>(bits:&BitSlice<BT,O>,start: usize,input_bits: BitBox<BT,O>)
+    where
+        BT: BitStore,
+        O: BitOrder
+    {
+        assert!(start+input_bits.len()-1<bits.len());
+        deposit_bits_of_bitset_unchecked(bits,start,input_bits);
+    }
+    //unchecked version of deposition
+    fn deposit_bits_of_bitset_unchecked<BT,O>(biits:&mut BitSlice<BT,O>,start:usize,input_bits:BitBox<BT,O>)
     where
         BT: BitStore,
         O: BitOrder

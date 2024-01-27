@@ -506,31 +506,36 @@ impl BitOperations {
         BitBox::from_bitslice(specific_bit_slice)
     }
     //deposit into a slice bits of slice
-    pub fn deposit_bits_into_slice<T,BT,O>(bits:&mut [T],start: usize, input_bits: BitBox<Bt,O>) {
+    pub fn deposit_bits_into_slice<T,BT,O>(bits:&mut [T],start: usize, input_bits: BitBox<BT,O>)
+    where
+        BT: BitStore,
+        O: BitOrder
+    {
         {
-            let array_size=bits.len()*size_of::<T>()<<3;
-            assert!(array_size>start&&length<=array_size-start);
+            let array_size: usize=bits.len()*size_of::<T>()<<3;
+            assert!(array_size>start&&input_bits.len()<=array_size-start);
         }
-        let true_bits=get_bit_slice_mut<T,BT,O>(bits);
-        deposit_bits_into_bitset(true_bits,start,input_bits);
+        let true_bits=get_bit_slice_mut::<T,BT,O>(bits);
+        Self::deposit_bits_into_bitset(true_bits,start,input_bits);
     }
     //deposit bits of one owned bitset into another
-    pub fn deposit_bits_into_bitset<BT,O>(bits:&BitSlice<BT,O>,start: usize,input_bits: BitBox<BT,O>)
+    pub fn deposit_bits_into_bitset<BT,O>(bits:&mut BitSlice<BT,O>,start: usize,input_bits: BitBox<BT,O>)
     where
         BT: BitStore,
         O: BitOrder
     {
         assert!(start+input_bits.len()-1<bits.len());
-        deposit_bits_into_bitset_unchecked(bits,start,input_bits);
+        Self::deposit_bits_into_bitset_unchecked(bits,start,input_bits);
     }
     //unchecked version of deposition
-    fn deposit_bits_into_bitset_unchecked<BT,O>(biits:&mut BitSlice<BT,O>,start:usize,input_bits:BitBox<BT,O>)
+    fn deposit_bits_into_bitset_unchecked<BT,O>(bits:&mut BitSlice<BT,O>,start:usize,input_bits:BitBox<BT,O>)
     where
         BT: BitStore,
         O: BitOrder
     {
-        let true_bitslice: &mut BitSlice<BT,O>=value[start..start+bits.len()];
-        true_bitslice.copy_from_bitslice(bits.as_bitslice());
+        let bits_length=bits.len();
+        let true_bitslice: &mut BitSlice<BT,O>=&mut bits[start..start+bits_length];
+        true_bitslice.copy_from_bitslice(input_bits.as_bitslice());
     }
     //return the value where the lower half is spread out into the odd bits in the word, and the even bits are zeroed (not by 0 based index)
     pub fn half_shuffle32(mut value:u32)->u32 {

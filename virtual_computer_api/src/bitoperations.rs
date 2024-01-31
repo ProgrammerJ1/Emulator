@@ -54,11 +54,13 @@ where
 pub struct BitOperations;
 impl BitOperations {
     //set a bit in memory, in the provided bit order
-    pub fn set_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
-    where O: BitOrder
+    pub fn set_bit<T,BT,O>(nr: usize,data:&mut [T],atomic:bool)
+    where
+        BT: BitStore,
+        O: BitOrder
     {
-        let data: &mut BitSlice<u32, O>=get_bit_slice_mut::<T,u32,O>(data);
-        Self::set_bit_in_raw_bits::<u32,O>(nr,data,atomic);
+        let data: &mut BitSlice<BT, O>=get_bit_slice_mut::<T,BT,O>(data);
+        Self::set_bit_in_raw_bits::<BT,O>(nr,data,atomic);
     }
     //set bits in raw bits slice
     pub fn set_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)
@@ -75,11 +77,13 @@ impl BitOperations {
         }
     }
     //clear a bit in memory
-    pub fn clear_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
-    where O: BitOrder
+    pub fn clear_bit<T,BT,O>(nr: usize,data:&mut [T],atomic:bool)
+    where
+        BT: BitStore,
+        O: BitOrder
     {
-        let data: &mut BitSlice<u32, O>=get_bit_slice_mut::<T,u32,O>(data);
-        Self::clear_bit_in_raw_bits::<u32,O>(nr, data, atomic);
+        let data: &mut BitSlice<BT, O>=get_bit_slice_mut::<T,BT,O>(data);
+        Self::clear_bit_in_raw_bits::<BT,O>(nr, data, atomic);
     }
     //clear bits in raw bits slice
     pub fn clear_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)
@@ -96,11 +100,13 @@ impl BitOperations {
         }
     }
     //flip a bit
-    pub fn change_bit<T,O>(nr: usize,data:&mut [T],atomic:bool)
-    where O: BitOrder
+    pub fn change_bit<T,BT,O>(nr: usize,data:&mut [T],atomic:bool)
+    where
+        BT:BitStore,
+        O: BitOrder
     {
-        let data: &mut BitSlice<u32, O>=get_bit_slice_mut::<T,u32,O>(data);
-        Self::change_bit_in_raw_bits::<u32,O>(nr, data, atomic);
+        let data: &mut BitSlice<BT, O>=get_bit_slice_mut::<T,BT,O>(data);
+        Self::change_bit_in_raw_bits::<BT,O>(nr, data, atomic);
     }
     //flip a bit in bits slice
     pub fn change_bit_in_raw_bits<BT,O>(nr: usize,data:&mut BitSlice<BT,O>,atomic:bool)

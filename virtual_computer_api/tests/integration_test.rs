@@ -3,9 +3,9 @@ use rand::{rngs::ThreadRng, thread_rng, Rng};
 #[test]
 pub fn bits_operations() {
     let mut rng=thread_rng();
-    bit_setting_test(&rng)
+    bit_setting_test(&mut rng)
 }
-fn bit_setting_test(rng: &ThreadRng) {
+fn bit_setting_test(rng: &mut ThreadRng) {
     let data: [u64;16]=[rng.gen(),rng.gen(),rng.gen(),rng.gen()
     ,rng.gen(),rng.gen(),rng.gen(),rng.gen()
     ,rng.gen(),rng.gen(),rng.gen()

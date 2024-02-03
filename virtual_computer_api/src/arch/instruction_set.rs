@@ -1,5 +1,5 @@
 use std::{boxed::Box,ops::RangeInclusive};
-use bitvec::{slice::BitSlice};
+use bitvec::slice::BitSlice;
 pub enum InstructionError {
     EmptySet,
     NotWithinISASize,
@@ -42,7 +42,7 @@ pub struct InstructionMode {
 impl InstructionMode {
     pub fn initalize_context(size:InstructionSize,formats:Vec<InstructionFormat>)->Result<Self,()> {
         for format in &formats {
-            if (!size.cmp_size(format.param_sizes.into_iter().sum())) {
+            if !size.cmp_size(format.param_sizes.into_iter().sum()) {
                 return Err(())
             }
         }

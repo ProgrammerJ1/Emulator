@@ -7,7 +7,7 @@ use std::mem::size_of;
 use std::sync::atomic::{AtomicU8,AtomicU16, AtomicU32, AtomicU64, Ordering};
 //Helper routines
 //Get the bit slice from the a slice of a certain type in a certain order
-fn get_bit_slice<T,BT,O>(data: &[T])->&BitSlice<BT,O>
+pub fn get_bit_slice<T,BT,O>(data: &[T])->&BitSlice<BT,O>
 where
     BT: BitStore,
     O: BitOrder
@@ -23,7 +23,7 @@ where
     return ptr_slice.view_bits::<O>();
 }
 //Get the mutable bit slice from the a slice of a certain type in a certain order
-fn get_bit_slice_mut<T,BT,O>(data: &mut [T])->&mut BitSlice<BT,O>
+pub fn get_bit_slice_mut<T,BT,O>(data: &mut [T])->&mut BitSlice<BT,O>
 where
     BT: BitStore,
     O: BitOrder
@@ -39,7 +39,7 @@ where
     return ptr_slice.view_bits_mut::<O>();
 }
 //Get the values that help control the bits in an atomic operation
-fn get_atomic_bit_control_values<'r,BT,O>(bits:&mut BitSlice<BT,O>,nr: usize)->(&'r AtomicU32,u32)
+pub fn get_atomic_bit_control_values<'r,BT,O>(bits:&mut BitSlice<BT,O>,nr: usize)->(&'r AtomicU32,u32)
 where
     BT: BitStore,
     O: BitOrder
